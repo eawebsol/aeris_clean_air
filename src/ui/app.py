@@ -378,6 +378,41 @@ h_val3 = max(30, current.aqi + 6)
 
 hero_card_style = f"background:{theme_style['bg']}; border:1px solid {theme_style['border']}; border-radius:14px; box-shadow:0 4px 20px -2px rgba(0,0,0,0.06); padding:1.4rem 1.75rem; margin-bottom:1.25rem;"
 
+# Right Card Theme Tuning for Maximum Readability
+card_bg = "rgba(15, 23, 42, 0.85)" if is_dark_severe else "#ffffff"
+card_border = "rgba(255, 255, 255, 0.2)" if is_dark_severe else "#cbd5e1"
+card_label_color = "#cbd5e1" if is_dark_severe else "#334155"
+card_val_color = "#ffffff" if is_dark_severe else "#0f172a"
+card_divider = "rgba(255, 255, 255, 0.15)" if is_dark_severe else "#e2e8f0"
+
+right_card_html = (
+    f'<div style="flex:1; min-width:280px; max-width:340px; background:{card_bg}; border:1px solid {card_border}; border-radius:10px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.12); backdrop-filter:blur(10px);">'
+    f'<div style="background:{theme_style["sidebar_header"]}; color:#ffffff; padding:0.65rem 1rem; font-size:0.85rem; font-weight:800; display:flex; align-items:center; gap:6px; letter-spacing:0.02em;">'
+    '<span>&#127788; AQI Last 3 Days &bull; Micro-Climate</span>'
+    '</div>'
+    '<div style="padding:0.85rem 1rem; font-size:0.84rem;">'
+    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid {card_divider};">'
+    f'<span style="color:{card_label_color}; font-weight:600;">{h_date1}</span>'
+    f'<span style="background:{theme_style["pill_bg"]}; color:{card_val_color}; font-weight:800; font-size:0.85rem; padding:2px 12px; border-radius:4px; border:1px solid {card_border};">{h_val1}</span>'
+    '</div>'
+    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid {card_divider};">'
+    f'<span style="color:{card_label_color}; font-weight:600;">{h_date2}</span>'
+    f'<span style="background:{theme_style["pill_bg"]}; color:{card_val_color}; font-weight:800; font-size:0.85rem; padding:2px 12px; border-radius:4px; border:1px solid {card_border};">{h_val2}</span>'
+    '</div>'
+    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid {card_divider};">'
+    f'<span style="color:{card_label_color}; font-weight:600;">{h_date3}</span>'
+    f'<span style="background:{theme_style["pill_bg"]}; color:{card_val_color}; font-weight:800; font-size:0.85rem; padding:2px 12px; border-radius:4px; border:1px solid {card_border};">{h_val3}</span>'
+    '</div>'
+    f'<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-top:0.85rem; padding-top:0.65rem; border-top:1px dashed {card_divider}; font-size:0.8rem;">'
+    f'<div><span style="color:{card_label_color}; display:block; font-size:0.75rem; font-weight:600;">Night Temp</span><b style="color:{card_val_color}; font-size:1.05rem;">{forecast.night_temp_c}°C</b></div>'
+    f'<div><span style="color:{card_label_color}; display:block; font-size:0.75rem; font-weight:600;">Wind Speed</span><b style="color:{card_val_color}; font-size:1.05rem;">{forecast.surface_wind_kmh} km/h</b></div>'
+    f'<div><span style="color:{card_label_color}; display:block; font-size:0.75rem; font-weight:600;">Mixing Layer</span><b style="color:#ef4444; font-size:1.05rem;">~{forecast.estimated_mixing_height_m}m</b></div>'
+    f'<div><span style="color:{card_label_color}; display:block; font-size:0.75rem; font-weight:600;">Inversion Risk</span><b style="color:{"#f87171" if is_dark_severe else "#0284c7"}; font-size:0.95rem;">{forecast.risk_level.split()[0]}</b></div>'
+    '</div>'
+    '</div>'
+    '</div>'
+)
+
 hero_html = (
     f'<div style="{hero_card_style}">'
     '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">'
@@ -413,31 +448,7 @@ hero_html = (
     f'PM2.5: <b style="color:{theme_style["text"]};">{current.pm25} µg/m³</b> &bull; PM10: <b style="color:{theme_style["text"]};">{current.pm10} µg/m³</b> &bull; Exposure: <b style="color:{"#f87171" if is_dark_severe else "#dc2626"};">{current.who_pm25_ratio}× WHO limit</b> &bull; {grap_stage}'
     '</div>'
     '</div>'
-    '<div style="flex:1; min-width:280px; max-width:340px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.04);">'
-    f'<div style="background:{theme_style["sidebar_header"]}; color:#ffffff; padding:0.6rem 1rem; font-size:0.82rem; font-weight:700; display:flex; align-items:center; gap:6px;">'
-    '<span>&#127788; AQI Last 3 Days &bull; Micro-Climate</span>'
-    '</div>'
-    '<div style="padding:0.75rem 1rem; font-size:0.82rem;">'
-    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid #f1f5f9;">'
-    f'<span style="color:#64748b;">{h_date1}</span>'
-    f'<span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:0.8rem; padding:2px 10px; border-radius:4px;">{h_val1}</span>'
-    '</div>'
-    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid #f1f5f9;">'
-    f'<span style="color:#64748b;">{h_date2}</span>'
-    f'<span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:0.8rem; padding:2px 10px; border-radius:4px;">{h_val2}</span>'
-    '</div>'
-    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid #f1f5f9;">'
-    f'<span style="color:#64748b;">{h_date3}</span>'
-    f'<span style="background:#fef3c7; color:#92400e; font-weight:700; font-size:0.8rem; padding:2px 10px; border-radius:4px;">{h_val3}</span>'
-    '</div>'
-    '<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.75rem; padding-top:0.5rem; border-top:1px dashed #e2e8f0; font-size:0.78rem;">'
-    f'<div><span style="color:#64748b; display:block;">Night Temp</span><b style="color:#0f172a;">{forecast.night_temp_c}°C</b></div>'
-    f'<div><span style="color:#64748b; display:block;">Wind Speed</span><b style="color:#0f172a;">{forecast.surface_wind_kmh} km/h</b></div>'
-    f'<div><span style="color:#64748b; display:block;">Mixing Layer</span><b style="color:#dc2626;">~{forecast.estimated_mixing_height_m}m</b></div>'
-    f'<div><span style="color:#64748b; display:block;">Risk</span><b style="color:#0284c7;">{forecast.risk_level.split()[0]}</b></div>'
-    '</div>'
-    '</div>'
-    '</div>'
+    f'{right_card_html}'
     '</div>'
     '</div>'
 )
