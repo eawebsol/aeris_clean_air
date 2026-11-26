@@ -198,6 +198,65 @@ st.markdown("""
         border: none !important;
         box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2) !important;
     }
+
+    /* Pollutant Pill Bar Buttons */
+    div[data-testid="stRadio"] div[role="radiogroup"] {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        margin-bottom: 0.6rem !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] label {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #cbd5e1 !important;
+        border-radius: 9999px !important;
+        padding: 4px 14px !important;
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
+        background: #334155 !important;
+        color: #ffffff !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] label[data-checked="true"],
+    div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+        background: #0284c7 !important;
+        border-color: #38bdf8 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.35) !important;
+    }
+    /* Hide the radio circle */
+    div[data-testid="stRadio"] div[role="radiogroup"] label div:first-child {
+        display: none !important;
+    }
+
+    /* Responsive Mobile Guard (390px and below) */
+    @media (max-width: 640px) {
+        .block-container {
+            padding-left: 0.6rem !important;
+            padding-right: 0.6rem !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .hero-left-col {
+            min-width: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .hero-scale-container {
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        .hero-scale-labels {
+            font-size: 0.62rem !important;
+        }
+        .hero-scale-ticks {
+            font-size: 0.58rem !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -246,6 +305,8 @@ if "sel_city" not in st.session_state:
     st.session_state["sel_city"] = "Delhi-NCR"
 if "sel_station" not in st.session_state:
     st.session_state["sel_station"] = "Alipur, Delhi - DPCC"
+if "sel_pollutant" not in st.session_state:
+    st.session_state["sel_pollutant"] = "AQI"
 
 # ---------------------------------------------------------
 # 1. TOP CIVIC BRAND & LOCATION CONTROLS
@@ -293,6 +354,19 @@ with ctrl_col:
             st.session_state["household_commute"] = "petrol_car"
             st.session_state["household_purifier"] = "No"
             st.rerun()
+
+# Pollutant & Metric Switcher Buttons (Inspired by Reference Design)
+pollutant_options = ["AQI", "History", "PM2.5", "PM10", "CO", "SO2", "NO2", "O3"]
+cur_pollutant_idx = pollutant_options.index(st.session_state["sel_pollutant"]) if st.session_state["sel_pollutant"] in pollutant_options else 0
+sel_pollutant = st.radio(
+    "Select Metric",
+    pollutant_options,
+    index=cur_pollutant_idx,
+    horizontal=True,
+    label_visibility="collapsed",
+    key="sel_pollutant_radio"
+)
+st.session_state["sel_pollutant"] = sel_pollutant
 
 cur_state = st.session_state["sel_state"]
 cur_city = st.session_state["sel_city"]
@@ -390,18 +464,53 @@ GRADIENT_MAP = {
 theme_style = GRADIENT_MAP.get(cpcb_cat, GRADIENT_MAP["Poor"])
 is_dark_severe = cpcb_cat == "Severe"
 
-# Calculate progress bar pointer
-dot_percent = min(98, max(2, int((current.aqi / 500.0) * 100)))
+# Determine displayed metric based on selected pill
+sel_metric = st.session_state.get("sel_pollutant", "AQI")
 
-# Dynamic historical trend generation based on current baseline
-h_date1 = "26 Nov 2026"
-h_date2 = "25 Nov 2026"
-h_date3 = "24 Nov 2026"
-h_val1 = max(30, current.aqi + 3)
-h_val2 = max(30, current.aqi - 1)
-h_val3 = max(30, current.aqi + 6)
+if sel_metric == "PM2.5":
+    metric_val = f"{current.pm25}"
+    metric_unit = "µg/m³"
+    metric_title = f"{cur_city} Particulate Matter (PM2.5) Level"
+    scale_ticks = "<span>0</span><span>30</span><span>60</span><span>90</span><span>120</span><span>250</span><span>380+</span>"
+    dot_percent = min(98, max(2, int((current.pm25 / 380.0) * 100)))
+elif sel_metric == "PM10":
+    metric_val = f"{current.pm10}"
+    metric_unit = "µg/m³"
+    metric_title = f"{cur_city} Particulate Matter (PM10) Level"
+    scale_ticks = "<span>0</span><span>50</span><span>100</span><span>250</span><span>350</span><span>430</span><span>500+</span>"
+    dot_percent = min(98, max(2, int((current.pm10 / 500.0) * 100)))
+elif sel_metric == "CO":
+    metric_val = f"{round(current.aqi * 5.2):,}"
+    metric_unit = "ppb"
+    metric_title = f"{cur_city} Carbon Monoxide (CO) Level"
+    scale_ticks = "<span>0</span><span>1000</span><span>2000</span><span>4000</span><span>8000</span><span>12000+</span>"
+    dot_percent = min(98, max(2, int((current.aqi / 500.0) * 100)))
+elif sel_metric == "SO2":
+    metric_val = f"{round(max(6, current.pm25 * 0.12), 1)}"
+    metric_unit = "ppb"
+    metric_title = f"{cur_city} Sulfur Dioxide (SO2) Level"
+    scale_ticks = "<span>0</span><span>20</span><span>40</span><span>80</span><span>180</span><span>280+</span>"
+    dot_percent = min(98, max(2, int((current.aqi / 500.0) * 100)))
+elif sel_metric == "NO2":
+    metric_val = f"{round(max(15, current.pm25 * 0.35), 1)}"
+    metric_unit = "ppb"
+    metric_title = f"{cur_city} Nitrogen Dioxide (NO2) Level"
+    scale_ticks = "<span>0</span><span>40</span><span>80</span><span>180</span><span>280</span><span>400+</span>"
+    dot_percent = min(98, max(2, int((current.aqi / 500.0) * 100)))
+elif sel_metric == "O3":
+    metric_val = f"{round(max(10, current.aqi * 0.18), 1)}"
+    metric_unit = "ppb"
+    metric_title = f"{cur_city} Ozone (O3) Level"
+    scale_ticks = "<span>0</span><span>50</span><span>100</span><span>168</span><span>208</span><span>300+</span>"
+    dot_percent = min(98, max(2, int((current.aqi / 500.0) * 100)))
+else:
+    metric_val = f"{current.aqi}"
+    metric_unit = ""
+    metric_title = f"Air Quality Index (AQI) | {cur_city} - {cur_station}"
+    scale_ticks = "<span>0</span><span>50</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span>"
+    dot_percent = min(98, max(2, int((current.aqi / 500.0) * 100)))
 
-hero_card_style = f"background:{theme_style['bg']}; border:1px solid {theme_style['border']}; border-radius:14px; box-shadow:0 4px 20px -2px rgba(0,0,0,0.06); padding:1.4rem 1.75rem; margin-bottom:1.25rem;"
+hero_card_style = f"background:{theme_style['bg']}; border:1px solid {theme_style['border']}; border-radius:14px; box-shadow:0 4px 20px -2px rgba(0,0,0,0.06); padding:1.25rem 1.4rem; margin-bottom:1.25rem; overflow:hidden;"
 
 # Right Card Theme Tuning for Maximum Readability
 card_bg = "rgba(15, 23, 42, 0.85)" if is_dark_severe else "#ffffff"
@@ -440,36 +549,39 @@ right_card_html = (
 
 hero_html = (
     f'<div style="{hero_card_style}">'
-    '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">'
-    '<div style="flex:1.6; min-width:320px;">'
+    '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">'
+    '<div class="hero-left-col" style="flex:1.6; min-width:0; width:100%; max-width:620px;">'
     '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:0.75rem;">'
     '<div>'
-    f'<div style="font-size:1.15rem; font-weight:800; color:{theme_style["text"]}; letter-spacing:-0.01em;">Air Quality Index (AQI) | {cur_city} - {cur_station}</div>'
+    f'<div style="font-size:1.15rem; font-weight:800; color:{theme_style["text"]}; letter-spacing:-0.01em;">{metric_title}</div>'
     f'<div style="font-size:0.75rem; color:{"#cbd5e1" if is_dark_severe else "#64748b"}; font-weight:500;">Last Updated: 27 Nov 2026, 01:00 AM IST &bull; CPCB CAAQM Network</div>'
     '</div>'
     '</div>'
-    '<div style="display:flex; align-items:center; gap:2.5rem; margin:0.8rem 0 0.5rem 0; flex-wrap:wrap;">'
+    '<div style="display:flex; align-items:center; gap:2rem; margin:0.8rem 0 0.5rem 0; flex-wrap:wrap;">'
     '<div>'
-    f'<div style="display:flex; align-items:center; gap:5px; font-size:0.75rem; font-weight:800; color:{"#f87171" if is_dark_severe else "#dc2626"};"><span style="width:7px; height:7px; background:{"#ef4444" if is_dark_severe else "#dc2626"}; border-radius:50%; display:inline-block;"></span> LIVE</div>'
-    f'<div style="font-size:3.75rem; font-weight:900; line-height:1; color:{theme_style["text"]}; font-family:\'Plus Jakarta Sans\',sans-serif;">{current.aqi}</div>'
+    f'<div style="display:flex; align-items:center; gap:5px; font-size:0.75rem; font-weight:800; color:{"#f87171" if is_dark_severe else "#dc2626"};"><span style="width:7px; height:7px; background:{"#ef4444" if is_dark_severe else "#dc2626"}; border-radius:50%; display:inline-block;"></span> LIVE {sel_metric}</div>'
+    f'<div style="display:flex; align-items:baseline; gap:6px;">'
+    f'<span style="font-size:3.75rem; font-weight:900; line-height:1; color:{theme_style["text"]}; font-family:\'Plus Jakarta Sans\',sans-serif;">{metric_val}</span>'
+    f'<span style="font-size:1.1rem; font-weight:700; color:{"#e2e8f0" if is_dark_severe else "#64748b"};">{metric_unit}</span>'
+    '</div>'
     '</div>'
     '<div>'
     f'<div style="font-size:0.8rem; font-weight:600; color:{"#e2e8f0" if is_dark_severe else "#64748b"}; margin-bottom:4px;">Air Quality Category is</div>'
     f'<div style="background:{theme_style["pill_bg"]}; border:1px solid {theme_style["border"]}; color:{theme_style["text"]}; font-size:1.15rem; font-weight:800; padding:4px 18px; border-radius:6px; display:inline-block;">{cpcb_cat}</div>'
     '</div>'
     '</div>'
-    '<div style="margin-top:1.2rem; width:100%; max-width:520px;">'
-    f'<div style="display:flex; justify-content:space-between; font-size:0.75rem; color:{"#ffffff" if is_dark_severe else "#475569"}; font-weight:700; margin-bottom:4px;">'
+    '<div class="hero-scale-container" style="margin-top:1.2rem; width:100%; box-sizing:border-box;">'
+    f'<div class="hero-scale-labels" style="display:flex; justify-content:space-between; font-size:0.75rem; color:{"#ffffff" if is_dark_severe else "#475569"}; font-weight:700; margin-bottom:4px; width:100%;">'
     '<span>Good</span><span>Satisfactory</span><span>Moderate</span><span>Poor</span><span>Very Poor</span><span>Severe</span>'
     '</div>'
     '<div style="position:relative; width:100%; height:8px; border-radius:4px; background:linear-gradient(to right, #16a34a 0%, #65a30d 15%, #d97706 35%, #ea580c 55%, #dc2626 75%, #7f1d1d 100%);">'
     f'<div style="position:absolute; top:-4px; left:{dot_percent}%; width:16px; height:16px; background:#ffffff; border:3px solid {theme_style["accent"]}; border-radius:50%; transform:translateX(-50%); box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>'
     '</div>'
-    f'<div style="display:flex; justify-content:space-between; font-size:0.68rem; color:{"#f1f5f9" if is_dark_severe else "#64748b"}; font-weight:600; margin-top:4px;">'
-    '<span>0</span><span>50</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span>'
+    f'<div class="hero-scale-ticks" style="display:flex; justify-content:space-between; font-size:0.68rem; color:{"#f1f5f9" if is_dark_severe else "#64748b"}; font-weight:600; margin-top:4px; width:100%;">'
+    f'{scale_ticks}'
     '</div>'
     '</div>'
-    f'<div style="font-size:0.85rem; color:{"#e2e8f0" if is_dark_severe else "#475569"}; margin-top:0.85rem; font-weight:600;">'
+    f'<div style="font-size:0.85rem; color:{"#e2e8f0" if is_dark_severe else "#475569"}; margin-top:0.85rem; font-weight:600; word-break:break-word;">'
     f'PM2.5: <b style="color:{theme_style["text"]};">{current.pm25} µg/m³</b> &bull; PM10: <b style="color:{theme_style["text"]};">{current.pm10} µg/m³</b> &bull; Exposure: <b style="color:{"#f87171" if is_dark_severe else "#dc2626"};">{current.who_pm25_ratio}× WHO limit</b> &bull; {grap_stage}'
     '</div>'
     '</div>'
