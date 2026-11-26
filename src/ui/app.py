@@ -328,7 +328,7 @@ if "sel_city" not in st.session_state:
     st.session_state["sel_city"] = "Delhi-NCR"
 if "sel_station" not in st.session_state:
     st.session_state["sel_station"] = "Alipur, Delhi - DPCC"
-if "sel_pollutant" not in st.session_state:
+if "sel_pollutant" not in st.session_state or st.session_state["sel_pollutant"] == "History":
     st.session_state["sel_pollutant"] = "AQI"
 if "trend_view" not in st.session_state:
     st.session_state["trend_view"] = "forecast"
@@ -389,7 +389,7 @@ sel_pollutant = st.radio(
     index=cur_pollutant_idx,
     horizontal=True,
     label_visibility="collapsed",
-    key="sel_pollutant_radio"
+    key="pollutant_metric_pills"
 )
 st.session_state["sel_pollutant"] = sel_pollutant
 
