@@ -25,7 +25,9 @@ import streamlit as st
 import pandas as pd
 import importlib
 import src.domain.constants.cpcb_stations as cpcb_mod
+import src.adapters.telemetry.hybrid_adapter as telemetry_mod
 importlib.reload(cpcb_mod)
+importlib.reload(telemetry_mod)
 from src.domain.constants.cpcb_stations import CPCB_STATIONS_HIERARCHY, STATION_CALIBRATED_DATA
 from src.adapters.llm.adapters import GeminiAdapter, MockLLMAdapter
 from src.adapters.telemetry.hybrid_adapter import HybridAirQualityAdapter

@@ -224,22 +224,53 @@ class HybridAirQualityAdapter(AirQualityPort):
         )
 
     def get_nocturnal_forecast(self, city: str, station_name: Optional[str] = None) -> WeatherForecast:
-        # Check if station calibrated data has meteorological values
+        """
+        Retrieves meteorological micro-climate readings and assesses atmospheric inversion risk.
+        Dynamically derives microclimate parameters per station, city, or regional meteorological profile
+        so nocturnal temperature, wind speed, mixing layer, and inversion severity realistically reflect
+        the local atmospheric stage and geography.
+        """
+        # 1. Exact station calibration if available
         if station_name and station_name in STATION_CALIBRATED_DATA:
             stn = STATION_CALIBRATED_DATA[station_name]
-            night_temp = float(stn.get("temp", 15.0))
-            wind = float(stn.get("wind", 3.0))
-            humidity = float(stn.get("humidity", 65.0))
+            night_temp = float(stn.get("temp", 14.0))
+            wind = float(stn.get("wind", 4.0))
+            humidity = float(stn.get("humidity", 70.0))
         elif city in self._fixtures:
             data = self._fixtures[city]
-            night_temp = data["night_temp_c"]
-            wind = data["wind_kmh"]
-            humidity = data["humidity"]
+            night_temp = float(data.get("night_temp_c", 15.0))
+            wind = float(data.get("wind_kmh", 4.0))
+            humidity = float(data.get("humidity", 70.0))
         else:
-            data = self._fixtures["Delhi-NCR"]
-            night_temp = data["night_temp_c"]
-            wind = data["wind_kmh"]
-            humidity = data["humidity"]
+            # Regional meteorological heuristics based on geography and pollution stage
+            station_lower = (station_name or "").lower()
+            city_lower = (city or "").lower()
+            
+            # Coastal & Southern cities (higher temp, sea breeze, open vertical dispersion)
+            if any(k in city_lower or k in station_lower for k in ["bengaluru", "bangalore", "chennai", "mumbai", "hyderabad", "kochi", "thiruvananthapuram", "kerala", "goa", "mangalore"]):
+                night_temp = 21.5
+                wind = 8.5
+                humidity = 68.0
+            # Central & Western India
+            elif any(k in city_lower or k in station_lower for k in ["pune", "ahmedabad", "bhopal", "indore", "surat", "jaipur", "jodhpur"]):
+                night_temp = 16.0
+                wind = 5.2
+                humidity = 58.0
+            # Eastern & Delta plains
+            elif any(k in city_lower or k in station_lower for k in ["kolkata", "howrah", "bhubaneswar", "guwahati", "patna", "ranchi", "cuttack"]):
+                night_temp = 15.0
+                wind = 4.2
+                humidity = 76.0
+            # Indo-Gangetic Plains & Northern Winter Corridor (severe nocturnal radiation trap)
+            elif any(k in city_lower or k in station_lower for k in ["delhi", "noida", "ghaziabad", "gurugram", "faridabad", "kanpur", "lucknow", "agra", "meerut", "amritsar", "ludhiana", "rohtak"]):
+                night_temp = 7.5
+                wind = 2.0
+                humidity = 90.0
+            else:
+                # Default temperate baseline
+                night_temp = 17.0
+                wind = 5.5
+                humidity = 65.0
 
         inversion = InversionPhysicsService.assess_inversion_risk(
             night_temp_c=night_temp,
