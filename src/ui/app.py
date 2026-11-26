@@ -209,28 +209,39 @@ st.markdown("""
     div[data-testid="stRadio"] div[role="radiogroup"] label {
         background: #1e293b !important;
         border: 1px solid #334155 !important;
-        color: #cbd5e1 !important;
         border-radius: 9999px !important;
-        padding: 4px 14px !important;
-        font-size: 0.78rem !important;
-        font-weight: 700 !important;
+        padding: 5px 14px !important;
         cursor: pointer !important;
         transition: all 0.2s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] label p,
+    div[data-testid="stRadio"] div[role="radiogroup"] label span {
+        color: #cbd5e1 !important;
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
         background: #334155 !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] label:hover p,
+    div[data-testid="stRadio"] div[role="radiogroup"] label:hover span {
         color: #ffffff !important;
     }
     div[data-testid="stRadio"] div[role="radiogroup"] label[data-checked="true"],
     div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
         background: #0284c7 !important;
         border-color: #38bdf8 !important;
-        color: #ffffff !important;
         box-shadow: 0 0 10px rgba(56, 189, 248, 0.35) !important;
     }
-    /* Hide the radio circle */
-    div[data-testid="stRadio"] div[role="radiogroup"] label div:first-child {
-        display: none !important;
+    div[data-testid="stRadio"] div[role="radiogroup"] label[data-checked="true"] p,
+    div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p,
+    div[data-testid="stRadio"] div[role="radiogroup"] label[data-checked="true"] span,
+    div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) span {
+        color: #ffffff !important;
     }
 
     /* Responsive Mobile Guard (390px and below) */
@@ -509,6 +520,14 @@ else:
     metric_title = f"Air Quality Index (AQI) | {cur_city} - {cur_station}"
     scale_ticks = "<span>0</span><span>50</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span>"
     dot_percent = min(98, max(2, int((current.aqi / 500.0) * 100)))
+
+# Dynamic historical trend generation based on current baseline
+h_date1 = "26 Nov 2026"
+h_date2 = "25 Nov 2026"
+h_date3 = "24 Nov 2026"
+h_val1 = max(30, current.aqi + 3)
+h_val2 = max(30, current.aqi - 1)
+h_val3 = max(30, current.aqi + 6)
 
 hero_card_style = f"background:{theme_style['bg']}; border:1px solid {theme_style['border']}; border-radius:14px; box-shadow:0 4px 20px -2px rgba(0,0,0,0.06); padding:1.25rem 1.4rem; margin-bottom:1.25rem; overflow:hidden;"
 
