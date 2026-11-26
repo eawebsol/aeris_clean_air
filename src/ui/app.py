@@ -535,26 +535,18 @@ else:
     scale_ticks = "<span>0</span><span>50</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span>"
     dot_percent = min(98, max(2, int((current.aqi / 500.0) * 100)))
 
-# Dynamic historical vs. forward 3-day meteorological forecast
-# Historical past 3 days
-h_date1 = "26 Nov"
-h_date2 = "25 Nov"
-h_date3 = "24 Nov"
-h_val1 = max(30, current.aqi + 3)
-h_val2 = max(30, current.aqi - 1)
+# Continuous 7-Day Atmospheric Trend: Past 3 Days -> Today (Live) -> Next 3 Days Forecast
+# Based on current station baseline and nocturnal temperature inversion model
 h_val3 = max(30, current.aqi + 6)
+h_val2 = max(30, current.aqi - 1)
+h_val1 = max(30, current.aqi + 3)
+today_val = current.aqi
 
-# Forward next 3 days: based on projected nocturnal cooling and boundary layer inversion
-# Cold wave drop increases inversion strength and traps PM near ground
+# Projected next 3 days: based on nocturnal temperature trajectory
 f_temp1 = round(forecast.night_temp_c - 0.8, 1)
 f_temp2 = round(forecast.night_temp_c - 1.4, 1)
 f_temp3 = round(forecast.night_temp_c + 0.5, 1)
 
-f_date1 = "28 Nov (Fri)"
-f_date2 = "29 Nov (Sat)"
-f_date3 = "30 Nov (Sun)"
-
-# Projected AQI: temperature drop of ~1°C in calm wind (<5km/h) concentrates smog ~5-8%
 if forecast.surface_wind_kmh <= 5.0 and forecast.night_temp_c <= 14.0:
     f_val1 = min(500, int(current.aqi * 1.05))
     f_val2 = min(500, int(current.aqi * 1.09))
@@ -564,8 +556,61 @@ else:
     f_val2 = max(30, int(current.aqi * 0.95))
     f_val3 = max(30, int(current.aqi * 1.01))
 
-# Check user selection or default to forecast
-is_forecast_selected = (sel_metric != "History")
+seven_days = [
+    {"label": "24 Nov", "val": h_val3, "type": "past", "sub": "Hist"},
+    {"label": "25 Nov", "val": h_val2, "type": "past", "sub": "Hist"},
+    {"label": "26 Nov", "val": h_val1, "type": "past", "sub": "Hist"},
+    {"label": "Today", "val": today_val, "type": "today", "sub": f"{forecast.night_temp_c:.0f}°C"},
+    {"label": "28 Nov", "val": f_val1, "type": "pred", "sub": f"{f_temp1:.0f}°C"},
+    {"label": "29 Nov", "val": f_val2, "type": "pred", "sub": f"{f_temp2:.0f}°C"},
+    {"label": "30 Nov", "val": f_val3, "type": "pred", "sub": f"{f_temp3:.0f}°C"}
+]
+
+# Build smooth SVG Sparkline (width: 290, height: 75, padding: 12)
+svg_w, svg_h = 290, 75
+pts = []
+for i, d in enumerate(seven_days):
+    cx = 16 + int(i * (svg_w - 32) / 6)
+    # Scale AQI between 0 and 500 into Y: 56 down to 14
+    norm = min(1.0, max(0.0, d["val"] / 500.0))
+    cy = int(58 - (norm * 44))
+    pts.append((cx, cy, d))
+
+polyline_str = " ".join([f"{p[0]},{p[1]}" for p in pts])
+
+# Circles and text annotations
+svg_circles = []
+for cx, cy, d in pts:
+    if d["type"] == "today":
+        dot_fill = "#ef4444" if is_dark_severe else "#dc2626"
+        dot_r = 5
+        ring = f'<circle cx="{cx}" cy="{cy}" r="9" fill="none" stroke="{dot_fill}" stroke-width="2" opacity="0.4"/>'
+    elif d["type"] == "pred":
+        dot_fill = "#38bdf8"
+        dot_r = 3.5
+        ring = ""
+    else:
+        dot_fill = "#94a3b8"
+        dot_r = 3.5
+        ring = ""
+    svg_circles.append(f'{ring}<circle cx="{cx}" cy="{cy}" r="{dot_r}" fill="{dot_fill}" stroke="#ffffff" stroke-width="1.5"/>')
+    svg_circles.append(f'<text x="{cx}" y="{cy - 8}" font-size="8.5" font-weight="800" fill="{"#ffffff" if is_dark_severe else "#0f172a"}" text-anchor="middle" font-family="sans-serif">{d["val"]}</text>')
+
+sparkline_svg = (
+    f'<svg viewBox="0 0 {svg_w} {svg_h}" style="width:100%; height:80px; display:block; overflow:visible;">'
+    f'<polyline fill="none" stroke="{"rgba(255,255,255,0.4)" if is_dark_severe else "#cbd5e1"}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="{polyline_str}"/>'
+    f'{"".join(svg_circles)}'
+    '</svg>'
+)
+
+# Bottom day labels row
+day_labels_html = "".join([
+    f'<div style="text-align:center; flex:1;">'
+    f'<div style="font-size:0.62rem; font-weight:{"800" if d["type"] == "today" else "600"}; color:{"#ef4444" if d["type"]=="today" else ("#cbd5e1" if is_dark_severe else "#64748b")};">{d["label"]}</div>'
+    f'<div style="font-size:0.58rem; color:{"#38bdf8" if d["type"]=="pred" else ("#94a3b8" if is_dark_severe else "#94a3b8")}; font-weight:700;">{d["sub"]}</div>'
+    f'</div>'
+    for d in seven_days
+])
 
 hero_card_style = f"background:{theme_style['bg']}; border:1px solid {theme_style['border']}; border-radius:14px; box-shadow:0 4px 20px -2px rgba(0,0,0,0.06); padding:1.25rem 1.4rem; margin-bottom:1.25rem; overflow:hidden;"
 
@@ -576,41 +621,22 @@ card_label_color = "#cbd5e1" if is_dark_severe else "#334155"
 card_val_color = "#ffffff" if is_dark_severe else "#0f172a"
 card_divider = "rgba(255, 255, 255, 0.15)" if is_dark_severe else "#e2e8f0"
 
-if is_forecast_selected:
-    trend_header_text = "&#128302; 3-Day Forecast &bull; Thermal Inversion"
-    r1_label, r1_val, r1_sub = f_date1, f"{f_val1}", f"{f_temp1}°C"
-    r2_label, r2_val, r2_sub = f_date2, f"{f_val2}", f"{f_temp2}°C"
-    r3_label, r3_val, r3_sub = f_date3, f"{f_val3}", f"{f_temp3}°C"
-else:
-    trend_header_text = "&#127788; Past 3 Days &bull; Micro-Climate"
-    r1_label, r1_val, r1_sub = h_date1, f"{h_val1}", "Observed"
-    r2_label, r2_val, r2_sub = h_date2, f"{h_val2}", "Observed"
-    r3_label, r3_val, r3_sub = h_date3, f"{h_val3}", "Observed"
-
 right_card_html = (
-    f'<div class="hero-right-col" style="flex:1; min-width:260px; max-width:340px; width:100%; box-sizing:border-box; background:{card_bg}; border:1px solid {card_border}; border-radius:10px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.12); backdrop-filter:blur(10px);">'
-    f'<div style="background:{theme_style["sidebar_header"]}; color:#ffffff; padding:0.65rem 1rem; font-size:0.82rem; font-weight:800; display:flex; align-items:center; justify-content:space-between; gap:6px; letter-spacing:0.02em;">'
-    f'<span>{trend_header_text}</span>'
-    f'<span style="font-size:0.68rem; font-weight:700; background:rgba(255,255,255,0.22); padding:2px 6px; border-radius:4px;">{"72h Model" if is_forecast_selected else "History"}</span>'
+    f'<div class="hero-right-col" style="flex:1; min-width:270px; max-width:350px; width:100%; box-sizing:border-box; background:{card_bg}; border:1px solid {card_border}; border-radius:10px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.12); backdrop-filter:blur(10px);">'
+    f'<div style="background:{theme_style["sidebar_header"]}; color:#ffffff; padding:0.6rem 0.9rem; font-size:0.82rem; font-weight:800; display:flex; align-items:center; justify-content:space-between; letter-spacing:0.02em;">'
+    '<span>&#128302; 7-Day Atmospheric Trend &bull; Inversion</span>'
+    '<span style="font-size:0.66rem; font-weight:700; background:rgba(255,255,255,0.22); padding:2px 6px; border-radius:4px;">Past 3d &bull; Today &bull; 72h Model</span>'
     '</div>'
-    '<div style="padding:0.85rem 1rem; font-size:0.84rem;">'
-    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid {card_divider};">'
-    f'<div><span style="color:{card_label_color}; font-weight:700;">{r1_label}</span> <span style="color:{"#f87171" if is_dark_severe else "#64748b"}; font-size:0.75rem; font-weight:600;">({r1_sub})</span></div>'
-    f'<span style="background:{theme_style["pill_bg"]}; color:{card_val_color}; font-weight:800; font-size:0.85rem; padding:2px 12px; border-radius:4px; border:1px solid {card_border};">{r1_val}</span>'
+    '<div style="padding:0.75rem 0.9rem 0.85rem 0.9rem;">'
+    f'{sparkline_svg}'
+    f'<div style="display:flex; justify-content:space-between; margin-top:4px; padding-bottom:0.6rem; border-bottom:1px solid {card_divider};">'
+    f'{day_labels_html}'
     '</div>'
-    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid {card_divider};">'
-    f'<div><span style="color:{card_label_color}; font-weight:700;">{r2_label}</span> <span style="color:{"#f87171" if is_dark_severe else "#64748b"}; font-size:0.75rem; font-weight:600;">({r2_sub})</span></div>'
-    f'<span style="background:{theme_style["pill_bg"]}; color:{card_val_color}; font-weight:800; font-size:0.85rem; padding:2px 12px; border-radius:4px; border:1px solid {card_border};">{r2_val}</span>'
-    '</div>'
-    f'<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid {card_divider};">'
-    f'<div><span style="color:{card_label_color}; font-weight:700;">{r3_label}</span> <span style="color:{"#f87171" if is_dark_severe else "#64748b"}; font-size:0.75rem; font-weight:600;">({r3_sub})</span></div>'
-    f'<span style="background:{theme_style["pill_bg"]}; color:{card_val_color}; font-weight:800; font-size:0.85rem; padding:2px 12px; border-radius:4px; border:1px solid {card_border};">{r3_val}</span>'
-    '</div>'
-    f'<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-top:0.85rem; padding-top:0.65rem; border-top:1px dashed {card_divider}; font-size:0.8rem;">'
-    f'<div><span style="color:{card_label_color}; display:block; font-size:0.75rem; font-weight:600;">Night Temp</span><b style="color:{card_val_color}; font-size:1.05rem;">{forecast.night_temp_c}°C</b></div>'
-    f'<div><span style="color:{card_label_color}; display:block; font-size:0.75rem; font-weight:600;">Wind Speed</span><b style="color:{card_val_color}; font-size:1.05rem;">{forecast.surface_wind_kmh} km/h</b></div>'
-    f'<div><span style="color:{card_label_color}; display:block; font-size:0.75rem; font-weight:600;">Mixing Layer</span><b style="color:#ef4444; font-size:1.05rem;">~{forecast.estimated_mixing_height_m}m</b></div>'
-    f'<div><span style="color:{card_label_color}; display:block; font-size:0.75rem; font-weight:600;">Inversion Risk</span><b style="color:{"#f87171" if is_dark_severe else "#0284c7"}; font-size:0.95rem;">{forecast.risk_level.split()[0]}</b></div>'
+    f'<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.65rem; font-size:0.8rem;">'
+    f'<div><span style="color:{card_label_color}; display:block; font-size:0.73rem; font-weight:600;">Night Temp</span><b style="color:{card_val_color}; font-size:1.02rem;">{forecast.night_temp_c}°C</b></div>'
+    f'<div><span style="color:{card_label_color}; display:block; font-size:0.73rem; font-weight:600;">Wind Speed</span><b style="color:{card_val_color}; font-size:1.02rem;">{forecast.surface_wind_kmh} km/h</b></div>'
+    f'<div><span style="color:{card_label_color}; display:block; font-size:0.73rem; font-weight:600;">Mixing Layer</span><b style="color:#ef4444; font-size:1.02rem;">~{forecast.estimated_mixing_height_m}m</b></div>'
+    f'<div><span style="color:{card_label_color}; display:block; font-size:0.73rem; font-weight:600;">Inversion Risk</span><b style="color:{"#f87171" if is_dark_severe else "#0284c7"}; font-size:0.92rem;">{forecast.risk_level.split()[0]}</b></div>'
     '</div>'
     '</div>'
     '</div>'
