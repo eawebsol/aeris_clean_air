@@ -306,73 +306,51 @@ cat_color = CPCB_SCALE[cpcb_cat]["color"]
 # ---------------------------------------------------------
 # 2. ELEVATED EDITORIAL HERO CARD WITH SVG DIAL & PHYSICS
 # ---------------------------------------------------------
-# Calculate gauge rotation angle (0 to 180 degrees)
-gauge_pct = min(1.0, current.aqi / 500.0)
-needle_angle = int(gauge_pct * 180) - 90  # -90 to +90 degrees
-
-hero_html = f"""
-<div class="hero-card">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">
-        <!-- Left: Gauge & Real-time AQI -->
-        <div style="flex:1; min-width:300px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:0.4rem;">
-                <span class="live-badge"><span class="pulse-dot"></span>LIVE CPCB CAAQM</span>
-                <span style="font-size:0.8rem; font-weight:600; color:#64748b;">{cur_station}</span>
-            </div>
-            <div style="display:flex; align-items:baseline; gap:1rem; margin-bottom:0.25rem;">
-                <span style="font-size:3.75rem; font-weight:900; line-height:1; color:#0f172a; font-family:'Plus Jakarta Sans',sans-serif;">{current.aqi}</span>
-                <div>
-                    <span style="font-size:1.35rem; font-weight:800; color:{cat_color}; display:block;">{cpcb_cat}</span>
-                    <span style="font-size:0.75rem; font-weight:700; color:#475569; background:#f1f5f9; padding:2px 6px; border-radius:4px;">{grap_stage}</span>
-                </div>
-            </div>
-            <div style="font-size:1.02rem; font-weight:600; color:#1e293b; margin-top:0.35rem; line-height:1.4;">
-                {action_headline}
-            </div>
-            <!-- Horizontal Gradient Segment Bar -->
-            <div style="margin-top:1rem; width:100%; max-width:360px;">
-                <div style="height:6px; border-radius:3px; background:linear-gradient(to right, #16a34a 0%, #65a30d 20%, #d97706 40%, #ea580c 60%, #dc2626 80%, #7f1d1d 100%);"></div>
-                <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:#64748b; font-weight:600; margin-top:3px;">
-                    <span>0 Good</span>
-                    <span>100 Mod</span>
-                    <span>200 Poor</span>
-                    <span>300 V.Poor</span>
-                    <span>400+ Severe</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right: Atmospheric Inversion & Micro-Climate Panel -->
-        <div style="flex:1; min-width:280px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:1.15rem 1.25rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#0284c7;">Atmospheric Inversion Physics</span>
-                <span style="font-size:0.75rem; font-weight:700; color:{cat_color}; background:#ffffff; border:1px solid #cbd5e1; padding:2px 8px; border-radius:4px;">{forecast.risk_level}</span>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.85rem;">
-                <div>
-                    <span style="color:#64748b; display:block; font-size:0.75rem;">Nocturnal Min Temp</span>
-                    <b style="font-size:1.15rem; color:#0f172a;">{forecast.night_temp_c}°C</b>
-                </div>
-                <div>
-                    <span style="color:#64748b; display:block; font-size:0.75rem;">Surface Wind</span>
-                    <b style="font-size:1.15rem; color:#0f172a;">{forecast.surface_wind_kmh} km/h</b>
-                </div>
-                <div>
-                    <span style="color:#64748b; display:block; font-size:0.75rem;">Planetary Mixing Layer</span>
-                    <b style="font-size:1.15rem; color:#ef4444;">~{forecast.estimated_mixing_height_m} meters</b>
-                </div>
-                <div>
-                    <span style="color:#64748b; display:block; font-size:0.75rem;">PM2.5 Exposure Multiple</span>
-                    <b style="font-size:1.15rem; color:#0f172a;">{current.who_pm25_ratio}× WHO limit</b>
-                </div>
-            </div>
-            <div style="font-size:0.75rem; color:#475569; margin-top:0.75rem; padding-top:0.5rem; border-top:1px dashed #cbd5e1;">
-                Surface inversion traps tailpipe soot at breathing height until 10:30 AM solar erosion.
-            </div>
-        </div>
-    </div>
-</div>
-"""
+hero_html = (
+    '<div class="hero-card">'
+    '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">'
+    '<div style="flex:1; min-width:300px;">'
+    f'<div style="display:flex; align-items:center; gap:8px; margin-bottom:0.4rem;">'
+    f'<span class="live-badge"><span class="pulse-dot"></span>LIVE CPCB CAAQM</span>'
+    f'<span style="font-size:0.8rem; font-weight:600; color:#64748b;">{cur_station}</span>'
+    '</div>'
+    '<div style="display:flex; align-items:baseline; gap:1rem; margin-bottom:0.25rem;">'
+    f'<span style="font-size:3.75rem; font-weight:900; line-height:1; color:#0f172a; font-family:\'Plus Jakarta Sans\',sans-serif;">{current.aqi}</span>'
+    '<div>'
+    f'<span style="font-size:1.35rem; font-weight:800; color:{cat_color}; display:block;">{cpcb_cat}</span>'
+    f'<span style="font-size:0.75rem; font-weight:700; color:#475569; background:#f1f5f9; padding:2px 6px; border-radius:4px;">{grap_stage}</span>'
+    '</div>'
+    '</div>'
+    f'<div style="font-size:1.02rem; font-weight:600; color:#1e293b; margin-top:0.35rem; line-height:1.4;">{action_headline}</div>'
+    '<div style="margin-top:1rem; width:100%; max-width:360px;">'
+    '<div style="height:6px; border-radius:3px; background:linear-gradient(to right, #16a34a 0%, #65a30d 20%, #d97706 40%, #ea580c 60%, #dc2626 80%, #7f1d1d 100%);"></div>'
+    '<div style="display:flex; justify-content:space-between; font-size:0.65rem; color:#64748b; font-weight:600; margin-top:3px;">'
+    '<span>0 Good</span><span>100 Mod</span><span>200 Poor</span><span>300 V.Poor</span><span>400+ Severe</span>'
+    '</div>'
+    '</div>'
+    '</div>'
+    '<div style="flex:1; min-width:280px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:1.15rem 1.25rem;">'
+    '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">'
+    '<span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#0284c7;">Atmospheric Inversion Physics</span>'
+    f'<span style="font-size:0.75rem; font-weight:700; color:{cat_color}; background:#ffffff; border:1px solid #cbd5e1; padding:2px 8px; border-radius:4px;">{forecast.risk_level}</span>'
+    '</div>'
+    '<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.85rem;">'
+    '<div><span style="color:#64748b; display:block; font-size:0.75rem;">Nocturnal Min Temp</span>'
+    f'<b style="font-size:1.15rem; color:#0f172a;">{forecast.night_temp_c}°C</b></div>'
+    '<div><span style="color:#64748b; display:block; font-size:0.75rem;">Surface Wind</span>'
+    f'<b style="font-size:1.15rem; color:#0f172a;">{forecast.surface_wind_kmh} km/h</b></div>'
+    '<div><span style="color:#64748b; display:block; font-size:0.75rem;">Planetary Mixing Layer</span>'
+    f'<b style="font-size:1.15rem; color:#ef4444;">~{forecast.estimated_mixing_height_m} meters</b></div>'
+    '<div><span style="color:#64748b; display:block; font-size:0.75rem;">PM2.5 Exposure Multiple</span>'
+    f'<b style="font-size:1.15rem; color:#0f172a;">{current.who_pm25_ratio}× WHO limit</b></div>'
+    '</div>'
+    '<div style="font-size:0.75rem; color:#475569; margin-top:0.75rem; padding-top:0.5rem; border-top:1px dashed #cbd5e1;">'
+    'Surface inversion traps tailpipe soot at breathing height until 10:30 AM solar erosion.'
+    '</div>'
+    '</div>'
+    '</div>'
+    '</div>'
+)
 st.markdown(hero_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
