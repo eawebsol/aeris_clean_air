@@ -23,6 +23,10 @@ if str(ROOT_DIR) not in sys.path:
 
 import streamlit as st
 import pandas as pd
+import importlib
+import src.domain.constants.cpcb_stations as cpcb_mod
+importlib.reload(cpcb_mod)
+from src.domain.constants.cpcb_stations import CPCB_STATIONS_HIERARCHY, STATION_CALIBRATED_DATA
 from src.adapters.llm.adapters import GeminiAdapter, MockLLMAdapter
 from src.adapters.telemetry.hybrid_adapter import HybridAirQualityAdapter
 from src.domain.services.physics_service import InversionPhysicsService, IAQService, ImpactCalculatorService
@@ -33,7 +37,6 @@ from src.domain.constants.impact_factors import (
     TRAFFIC_CORRIDOR_FACTORS,
     SUSTAINABLE_MATERIAL_FACTORS
 )
-from src.domain.constants.cpcb_stations import CPCB_STATIONS_HIERARCHY, STATION_CALIBRATED_DATA
 from src.orchestration.orchestrator import SmogAssistantOrchestrator
 
 # 1. Page Configuration
@@ -477,51 +480,51 @@ st.markdown(hero_html, unsafe_allow_html=True)
 # ---------------------------------------------------------
 # CPCB OFFICIAL REAL-TIME ALL-INDIA TICKER
 # ---------------------------------------------------------
-ticker_items = """
-<span style="color:#38bdf8; font-weight:700; margin-right:20px;">27 Nov 2026, 01:00 AM IST</span>
-<span style="margin-right:18px;">Delhi: <b style="color:#f87171;">221</b></span>
-<span style="margin-right:18px;">Patna: <b style="color:#fbbf24;">184</b></span>
-<span style="margin-right:18px;">Kanpur: <b style="color:#34d399;">124</b></span>
-<span style="margin-right:18px;">Lucknow: <b style="color:#fbbf24;">147</b></span>
-<span style="margin-right:18px;">Kolkata: <b style="color:#fbbf24;">161</b></span>
-<span style="margin-right:18px;">Mumbai: <b style="color:#34d399;">123</b></span>
-<span style="margin-right:18px;">Noida: <b style="color:#f87171;">224</b></span>
-<span style="margin-right:18px;">Ghaziabad: <b style="color:#f87171;">253</b></span>
-<span style="margin-right:18px;">Gurugram: <b style="color:#f87171;">233</b></span>
-<span style="margin-right:18px;">Faridabad: <b style="color:#f87171;">221</b></span>
-<span style="margin-right:18px;">Agra: <b style="color:#34d399;">135</b></span>
-<span style="margin-right:18px;">Ahmedabad: <b style="color:#34d399;">119</b></span>
-<span style="margin-right:18px;">Bengaluru: <b style="color:#4ade80;">62</b></span>
-<span style="margin-right:18px;">Chennai: <b style="color:#4ade80;">62</b></span>
-<span style="margin-right:18px;">Hyderabad: <b style="color:#4ade80;">55</b></span>
-<span style="margin-right:18px;">Jaipur: <b style="color:#fbbf24;">182</b></span>
-<span style="margin-right:18px;">Pune: <b style="color:#34d399;">132</b></span>
-<span style="margin-right:18px;">Varanasi: <b style="color:#fbbf24;">189</b></span>
-<span style="margin-right:18px;">Amritsar: <b style="color:#fbbf24;">172</b></span>
-<span style="margin-right:18px;">Meerut: <b style="color:#f87171;">275</b></span>
-<span style="margin-right:18px;">Sirsa: <b style="color:#f43f5e;">324</b></span>
-<span style="margin-right:18px;">Bhopal: <b style="color:#fbbf24;">184</b></span>
-<span style="margin-right:18px;">Chandigarh: <b style="color:#34d399;">119</b></span>
-<span style="margin-right:18px;">Guwahati: <b style="color:#4ade80;">98</b></span>
-<span style="margin-right:18px;">Shillong: <b style="color:#4ade80;">23</b></span>
-<span style="margin-right:18px;">Aizawl: <b style="color:#4ade80;">28</b></span>
-<span style="margin-right:18px;">Udaipur: <b style="color:#f87171;">257</b></span>
-<span style="margin-right:18px;">Darbhanga: <b style="color:#f87171;">263</b></span>
-<span style="margin-right:18px;">Gaya: <b style="color:#fbbf24;">159</b></span>
-"""
+ticker_data = [
+    ("Delhi", 221, "#f87171"),
+    ("Patna", 184, "#fbbf24"),
+    ("Kanpur", 124, "#34d399"),
+    ("Lucknow", 147, "#fbbf24"),
+    ("Kolkata", 161, "#fbbf24"),
+    ("Mumbai", 123, "#34d399"),
+    ("Noida", 224, "#f87171"),
+    ("Ghaziabad", 253, "#f87171"),
+    ("Gurugram", 233, "#f87171"),
+    ("Faridabad", 221, "#f87171"),
+    ("Agra", 135, "#34d399"),
+    ("Ahmedabad", 119, "#34d399"),
+    ("Bengaluru", 62, "#4ade80"),
+    ("Chennai", 62, "#4ade80"),
+    ("Hyderabad", 55, "#4ade80"),
+    ("Jaipur", 182, "#fbbf24"),
+    ("Pune", 132, "#34d399"),
+    ("Varanasi", 189, "#fbbf24"),
+    ("Amritsar", 172, "#fbbf24"),
+    ("Meerut", 275, "#f87171"),
+    ("Sirsa", 324, "#f43f5e"),
+    ("Bhopal", 184, "#fbbf24"),
+    ("Chandigarh", 119, "#34d399"),
+    ("Guwahati", 98, "#4ade80"),
+    ("Shillong", 23, "#4ade80"),
+    ("Aizawl", 28, "#4ade80"),
+    ("Udaipur", 257, "#f87171"),
+    ("Darbhanga", 263, "#f87171"),
+    ("Gaya", 159, "#fbbf24")
+]
 
-cpcb_ticker_html = f"""
-<div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:7px 14px; margin-bottom:1.1rem; display:flex; align-items:center; gap:12px; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.06); cursor:pointer;" title="Hover to pause ticker">
-    <span style="background:#be123c; color:#ffffff; font-weight:800; font-size:0.72rem; padding:3px 10px; border-radius:4px; white-space:nowrap; letter-spacing:0.04em; display:flex; align-items:center; gap:6px;">
-        <span style="width:6px; height:6px; background:#ffffff; border-radius:50%; display:inline-block;"></span> CPCB LIVE
-    </span>
-    <div class="cpcb-ticker-wrap">
-        <div class="cpcb-ticker-move">
-            {ticker_items} {ticker_items}
-        </div>
-    </div>
-</div>
-"""
+ticker_spans = "".join([f'<span style="margin-right:20px; color:#e2e8f0; font-weight:500;">{city}: <b style="color:{col}; font-weight:800;">{aqi}</b></span>' for city, aqi, col in ticker_data])
+ticker_content = f'<span style="color:#38bdf8; font-weight:700; margin-right:24px;">27 Nov 2026, 01:00 AM IST</span>{ticker_spans}'
+
+cpcb_ticker_html = (
+    '<div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:7px 14px; margin-bottom:1.1rem; display:flex; align-items:center; gap:12px; font-family:\'Plus Jakarta Sans\',sans-serif; font-size:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.06); cursor:pointer;" title="Hover to pause ticker">'
+    '<span style="background:#be123c; color:#ffffff; font-weight:800; font-size:0.72rem; padding:3px 10px; border-radius:4px; white-space:nowrap; letter-spacing:0.04em; display:flex; align-items:center; gap:6px;">'
+    '<span style="width:6px; height:6px; background:#ffffff; border-radius:50%; display:inline-block;"></span> CPCB LIVE'
+    '</span>'
+    '<div class="cpcb-ticker-wrap">'
+    f'<div class="cpcb-ticker-move">{ticker_content} {ticker_content}</div>'
+    '</div>'
+    '</div>'
+)
 st.markdown(cpcb_ticker_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
