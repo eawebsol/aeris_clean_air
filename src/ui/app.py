@@ -58,13 +58,13 @@ st.markdown("""
     #MainMenu, footer {visibility: hidden;}
 
     /* Typography & Sizing Rules */
-    body, p, span, label, div {
+    body, p, label {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         color: #22252A;
     }
-    p, li, span {
+    p, li {
         font-size: 15px;
-        line-height: 1.4;
+        line-height: 1.5;
         max-width: 70ch;
     }
     h1, h2, h3, h4, h5, h6 {
@@ -87,6 +87,16 @@ st.markdown("""
         border-radius: 4px;
         padding: 0.75rem 1rem;
         margin-bottom: 0.5rem;
+        height: 100%;
+    }
+    .aeris-subcard ul {
+        margin: 0;
+        padding-left: 1.2rem;
+    }
+    .aeris-subcard li {
+        margin-bottom: 0.35rem;
+        font-size: 14.5px;
+        line-height: 1.45;
     }
     .metric-row {
         display: flex;
@@ -103,8 +113,8 @@ st.markdown("""
     }
 
     /* Streamlit Input Overrides for clean compact alignment */
-    div[data-testid="stSelectbox"] label, div[data-testid="stMultiSelect"] label, div[data-testid="stRadio"] label {
-        font-size: 12px !important;
+    div[data-testid="stWidgetLabel"] p {
+        font-size: 12.5px !important;
         font-weight: 600 !important;
         color: #2F4B6E !important;
         margin-bottom: 2px !important;
@@ -240,21 +250,21 @@ cat_color = CPCB_SCALE.get(cpcb_cat, "#2F4B6E")
 # 2. ANSWER CARD (Light, theme colors, thin left border)
 # ---------------------------------------------------------
 answer_card_html = f"""
-<div style="background-color:#E8E3DA; border:1px solid #D6CFC3; border-left:6px solid {cat_color}; border-radius:4px; padding:1.25rem 1.5rem; margin-bottom:1rem;">
+<div class="aeris-card" style="border-left:6px solid {cat_color};">
     <div style="display:flex; align-items:baseline; gap:0.75rem; margin-bottom:0.35rem;">
-        <span style="font-size:2.8rem; font-weight:800; line-height:1; color:{cat_color};">{current.aqi}</span>
-        <span style="font-size:1.3rem; font-weight:700; color:#22252A;">{cpcb_cat}</span>
+        <span style="font-size:2.8rem; font-weight:800; line-height:1; color:#22252A;">{current.aqi}</span>
+        <span style="font-size:1.15rem; font-weight:700; color:{cat_color}; background:rgba(0,0,0,0.04); padding:2px 8px; border-radius:3px;">{cpcb_cat}</span>
     </div>
     <div style="font-size:16px; font-weight:500; color:#22252A; margin-bottom:0.75rem; max-width:70ch;">
         {action_sentence}
     </div>
-    <div class="metric-row" style="display:flex; flex-wrap:wrap; gap:1.25rem; font-size:14px; color:#4A5568; margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid #D6CFC3;">
-        <span>PM2.5: <b style="color:#22252A;">{current.pm25} µg/m³</b></span>
-        <span>PM10: <b style="color:#22252A;">{current.pm10} µg/m³</b></span>
-        <span>WHO limit: <b style="color:#22252A;">{current.who_pm25_ratio}×</b></span>
-        <span>Temperature: <b style="color:#22252A;">{forecast.night_temp_c}°C</b></span>
-        <span>Wind: <b style="color:#22252A;">{forecast.surface_wind_kmh} km/h</b></span>
-        <span>Mixing layer: <b style="color:#22252A;">~{forecast.estimated_mixing_height_m}m</b></span>
+    <div class="metric-row">
+        <span>PM2.5: <b>{current.pm25} µg/m³</b></span>
+        <span>PM10: <b>{current.pm10} µg/m³</b></span>
+        <span>WHO limit: <b>{current.who_pm25_ratio}×</b></span>
+        <span>Temperature: <b>{forecast.night_temp_c}°C</b></span>
+        <span>Wind: <b>{forecast.surface_wind_kmh} km/h</b></span>
+        <span>Mixing layer: <b>~{forecast.estimated_mixing_height_m}m</b></span>
     </div>
 </div>
 """
