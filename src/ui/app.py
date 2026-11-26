@@ -244,6 +244,15 @@ st.markdown("""
         color: #ffffff !important;
     }
 
+    /* Micro-Climate Atmospheric Grid */
+    .microclimate-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 0.5rem !important;
+        margin-top: 0.65rem !important;
+        font-size: 0.8rem !important;
+    }
+
     /* Responsive Mobile Guard (768px and below) */
     @media (max-width: 768px) {
         .block-container {
@@ -278,6 +287,10 @@ st.markdown("""
         }
         .hero-scale-ticks {
             font-size: 0.58rem !important;
+        }
+        .microclimate-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.6rem !important;
         }
     }
 </style>
@@ -632,11 +645,11 @@ right_card_html = (
     f'<div style="display:flex; justify-content:space-between; margin-top:4px; padding-bottom:0.6rem; border-bottom:1px solid {card_divider};">'
     f'{day_labels_html}'
     '</div>'
-    f'<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.65rem; font-size:0.8rem;">'
-    f'<div><span style="color:{card_label_color}; display:block; font-size:0.73rem; font-weight:600;">Night Temp</span><b style="color:{card_val_color}; font-size:1.02rem;">{forecast.night_temp_c}°C</b></div>'
-    f'<div><span style="color:{card_label_color}; display:block; font-size:0.73rem; font-weight:600;">Wind Speed</span><b style="color:{card_val_color}; font-size:1.02rem;">{forecast.surface_wind_kmh} km/h</b></div>'
-    f'<div><span style="color:{card_label_color}; display:block; font-size:0.73rem; font-weight:600;">Mixing Layer</span><b style="color:#ef4444; font-size:1.02rem;">~{forecast.estimated_mixing_height_m}m</b></div>'
-    f'<div><span style="color:{card_label_color}; display:block; font-size:0.73rem; font-weight:600;">Inversion Risk</span><b style="color:{"#f87171" if is_dark_severe else "#0284c7"}; font-size:0.92rem;">{forecast.risk_level.split()[0]}</b></div>'
+    f'<div class="microclimate-grid">'
+    f'<div style="text-align:center;"><span style="color:{card_label_color}; display:block; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;">Night Temp</span><b style="color:{card_val_color}; font-size:0.95rem;">{forecast.night_temp_c}°C</b></div>'
+    f'<div style="text-align:center;"><span style="color:{card_label_color}; display:block; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;">Wind</span><b style="color:{card_val_color}; font-size:0.95rem;">{forecast.surface_wind_kmh} km/h</b></div>'
+    f'<div style="text-align:center;"><span style="color:{card_label_color}; display:block; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;">Mixing Layer</span><b style="color:#ef4444; font-size:0.95rem;">~{forecast.estimated_mixing_height_m}m</b></div>'
+    f'<div style="text-align:center;"><span style="color:{card_label_color}; display:block; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;">Inversion</span><b style="color:{"#f87171" if is_dark_severe else "#0284c7"}; font-size:0.92rem;">{forecast.risk_level.split()[0]}</b></div>'
     '</div>'
     '</div>'
     '</div>'
