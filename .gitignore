@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments (Strict Hack2skill < 10MB limit enforcement)
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Testing & Evals caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary logs & data dumps
+*.log
+tmp/
+*.tmp
+
+# Streamlit secrets (Do not commit to public GitHub!)
+.streamlit/secrets.toml
