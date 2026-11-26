@@ -244,25 +244,37 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-    /* Responsive Mobile Guard (390px and below) */
-    @media (max-width: 640px) {
+    /* Responsive Mobile Guard (768px and below) */
+    @media (max-width: 768px) {
         .block-container {
-            padding-left: 0.6rem !important;
-            padding-right: 0.6rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
             width: 100% !important;
             max-width: 100% !important;
         }
+        .hero-flex-row {
+            flex-direction: column !important;
+            gap: 1.25rem !important;
+        }
         .hero-left-col {
-            min-width: 0 !important;
+            flex: 1 1 100% !important;
             width: 100% !important;
             max-width: 100% !important;
+            min-width: 0 !important;
+        }
+        .hero-right-col {
+            flex: 1 1 100% !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
         }
         .hero-scale-container {
             max-width: 100% !important;
             width: 100% !important;
         }
         .hero-scale-labels {
-            font-size: 0.62rem !important;
+            font-size: 0.58rem !important;
+            letter-spacing: -0.02em !important;
         }
         .hero-scale-ticks {
             font-size: 0.58rem !important;
@@ -539,7 +551,7 @@ card_val_color = "#ffffff" if is_dark_severe else "#0f172a"
 card_divider = "rgba(255, 255, 255, 0.15)" if is_dark_severe else "#e2e8f0"
 
 right_card_html = (
-    f'<div style="flex:1; min-width:280px; max-width:340px; background:{card_bg}; border:1px solid {card_border}; border-radius:10px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.12); backdrop-filter:blur(10px);">'
+    f'<div class="hero-right-col" style="flex:1; min-width:260px; max-width:340px; width:100%; box-sizing:border-box; background:{card_bg}; border:1px solid {card_border}; border-radius:10px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.12); backdrop-filter:blur(10px);">'
     f'<div style="background:{theme_style["sidebar_header"]}; color:#ffffff; padding:0.65rem 1rem; font-size:0.85rem; font-weight:800; display:flex; align-items:center; gap:6px; letter-spacing:0.02em;">'
     '<span>&#127788; AQI Last 3 Days &bull; Micro-Climate</span>'
     '</div>'
@@ -568,8 +580,8 @@ right_card_html = (
 
 hero_html = (
     f'<div style="{hero_card_style}">'
-    '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">'
-    '<div class="hero-left-col" style="flex:1.6; min-width:0; width:100%; max-width:620px;">'
+    '<div class="hero-flex-row" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem; width:100%; box-sizing:border-box;">'
+    '<div class="hero-left-col" style="flex:1.6; min-width:0; width:100%; max-width:620px; box-sizing:border-box;">'
     '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:0.75rem;">'
     '<div>'
     f'<div style="font-size:1.15rem; font-weight:800; color:{theme_style["text"]}; letter-spacing:-0.01em;">{metric_title}</div>'
