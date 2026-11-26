@@ -381,7 +381,7 @@ with ctrl_col:
             st.rerun()
 
 # Pollutant & Metric Switcher Buttons (Inspired by Reference Design)
-pollutant_options = ["AQI", "History", "PM2.5", "PM10", "CO", "SO2", "NO2", "O3"]
+pollutant_options = ["AQI", "PM2.5", "PM10", "CO", "SO2", "NO2", "O3"]
 cur_pollutant_idx = pollutant_options.index(st.session_state["sel_pollutant"]) if st.session_state["sel_pollutant"] in pollutant_options else 0
 sel_pollutant = st.radio(
     "Select Metric",
