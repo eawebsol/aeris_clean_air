@@ -29,6 +29,7 @@ import src.adapters.telemetry.hybrid_adapter as telemetry_mod
 importlib.reload(cpcb_mod)
 importlib.reload(telemetry_mod)
 from src.domain.constants.cpcb_stations import CPCB_STATIONS_HIERARCHY, STATION_CALIBRATED_DATA
+from src.domain.constants.localization import TRANSLATIONS
 from src.adapters.llm.adapters import GeminiAdapter, MockLLMAdapter
 from src.adapters.telemetry.hybrid_adapter import HybridAirQualityAdapter
 from src.domain.services.physics_service import InversionPhysicsService, IAQService, ImpactCalculatorService
@@ -345,46 +346,70 @@ if "sel_pollutant" not in st.session_state or st.session_state["sel_pollutant"] 
     st.session_state["sel_pollutant"] = "AQI"
 if "trend_view" not in st.session_state:
     st.session_state["trend_view"] = "forecast"
+if "app_lang" not in st.session_state:
+    st.session_state["app_lang"] = "EN"
+
+t = TRANSLATIONS[st.session_state["app_lang"]]
 
 # ---------------------------------------------------------
 # 1. TOP CIVIC BRAND & LOCATION CONTROLS
 # ---------------------------------------------------------
-brand_col, ctrl_col = st.columns([1.8, 1.2])
+brand_col, lang_col, ctrl_col = st.columns([1.6, 0.6, 1.2])
 
 with brand_col:
-    st.markdown("""
+    st.markdown(f"""
     <div style="display:flex; align-items:baseline; gap:10px;">
-        <span style="font-size:1.35rem; font-weight:800; color:#0f172a; letter-spacing:-0.02em;">AERIS INTELLIGENCE</span>
-        <span style="font-size:0.8rem; color:#64748b; font-weight:500;">National Clean Air & Nocturnal Inversion System</span>
+        <span style="font-size:1.35rem; font-weight:800; color:#0f172a; letter-spacing:-0.02em;">{t['title']}</span>
+        <span style="font-size:0.8rem; color:#64748b; font-weight:500;">{t['subtitle']}</span>
     </div>
     """, unsafe_allow_html=True)
+
+with lang_col:
+    lang_map = {
+        "EN": "English",
+        "HI": "हिंदी (Hindi)",
+        "BN": "বাংলা (Bengali)",
+        "TE": "తెలుగు (Telugu)"
+    }
+    cur_lang_idx = list(lang_map.keys()).index(st.session_state["app_lang"]) if st.session_state["app_lang"] in lang_map else 0
+    selected_lang = st.selectbox(
+        "Language",
+        list(lang_map.keys()),
+        index=cur_lang_idx,
+        format_func=lambda x: lang_map[x],
+        label_visibility="collapsed",
+        key="lang_selector"
+    )
+    if selected_lang != st.session_state["app_lang"]:
+        st.session_state["app_lang"] = selected_lang
+        st.rerun()
 
 with ctrl_col:
     btn_col1, btn_col2 = st.columns([1.5, 1])
     with btn_col1:
         clean_stn_label = st.session_state['sel_station'].split(" - ")[0]
         with st.popover(f"📍 {clean_stn_label} (Change)", use_container_width=True):
-            st.markdown("**Continuous Ambient Air Quality Monitoring (CAAQM)**")
+            st.markdown(f"**{t['station_select']}**")
             all_states = list(CPCB_STATIONS_HIERARCHY.keys())
             st_idx = all_states.index(st.session_state["sel_state"]) if st.session_state["sel_state"] in all_states else 0
-            new_state = st.selectbox("State", all_states, index=st_idx, key="pop_state")
+            new_state = st.selectbox(t["state"], all_states, index=st_idx, key="pop_state")
 
             all_cities = list(CPCB_STATIONS_HIERARCHY[new_state].keys())
             ct_idx = all_cities.index(st.session_state["sel_city"]) if st.session_state["sel_city"] in all_cities else 0
-            new_city = st.selectbox("City", all_cities, index=ct_idx, key="pop_city")
+            new_city = st.selectbox(t["city"], all_cities, index=ct_idx, key="pop_city")
 
             all_stns = CPCB_STATIONS_HIERARCHY[new_state][new_city]
             stn_idx = all_stns.index(st.session_state["sel_station"]) if st.session_state["sel_station"] in all_stns else 0
-            new_stn = st.selectbox("Station", all_stns, index=stn_idx, key="pop_station")
+            new_stn = st.selectbox(t["station"], all_stns, index=stn_idx, key="pop_station")
 
-            if st.button("Apply Station", type="primary", use_container_width=True):
+            if st.button(t["apply_station"], type="primary", use_container_width=True):
                 st.session_state["sel_state"] = new_state
                 st.session_state["sel_city"] = new_city
                 st.session_state["sel_station"] = new_stn
                 st.rerun()
 
     with btn_col2:
-        if st.button("⚡ Delhi Night", help="Simulate severe nocturnal inversion baseline", use_container_width=True):
+        if st.button(t["delhi_demo"], help=t["delhi_demo_help"], use_container_width=True):
             st.session_state["sel_state"] = "Delhi"
             st.session_state["sel_city"] = "Delhi-NCR"
             st.session_state["sel_station"] = "Anand Vihar, Delhi - DPCC"
@@ -655,6 +680,21 @@ right_card_html = (
     '</div>'
 )
 
+# Calculate cigarette equivalence
+cig_info = InversionPhysicsService.calculate_cigarette_equivalence(current.pm25)
+cigs_val = cig_info["unmasked_cigarettes_per_day"]
+cigs_n95 = cig_info["n95_protected_cigarettes_per_day"]
+
+hero_exposure_html = (
+    f'<div style="font-size:0.85rem; color:{"#e2e8f0" if is_dark_severe else "#475569"}; margin-top:0.85rem; font-weight:600; word-break:break-word; line-height:1.5;">'
+    f'PM2.5: <b style="color:{theme_style["text"]};">{current.pm25} µg/m³</b> &bull; PM10: <b style="color:{theme_style["text"]};">{current.pm10} µg/m³</b> &bull; '
+    f'Exposure: <b style="color:{"#f87171" if is_dark_severe else "#dc2626"};">{current.who_pm25_ratio}{t["who_ratio_suffix"]}</b> &bull; '
+    f'<span style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); padding:2px 8px; border-radius:4px; color:{"#fecaca" if is_dark_severe else "#b91c1c"}; font-weight:700;">'
+    f'~{cigs_val} {t["cigarettes_eq"]} ({t["n95_cuts"]} &lt;{cigs_n95})'
+    f'</span> &bull; {grap_stage}'
+    '</div>'
+)
+
 hero_html = (
     f'<div style="{hero_card_style}">'
     '<div class="hero-flex-row" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem; width:100%; box-sizing:border-box;">'
@@ -674,7 +714,7 @@ hero_html = (
     '</div>'
     '</div>'
     '<div>'
-    f'<div style="font-size:0.8rem; font-weight:600; color:{"#e2e8f0" if is_dark_severe else "#64748b"}; margin-bottom:4px;">Air Quality Category is</div>'
+    f'<div style="font-size:0.8rem; font-weight:600; color:{"#e2e8f0" if is_dark_severe else "#64748b"}; margin-bottom:4px;">{t["air_quality_category"]}</div>'
     f'<div style="background:{theme_style["pill_bg"]}; border:1px solid {theme_style["border"]}; color:{theme_style["text"]}; font-size:1.15rem; font-weight:800; padding:4px 18px; border-radius:6px; display:inline-block;">{cpcb_cat}</div>'
     '</div>'
     '</div>'
@@ -689,9 +729,7 @@ hero_html = (
     f'{scale_ticks}'
     '</div>'
     '</div>'
-    f'<div style="font-size:0.85rem; color:{"#e2e8f0" if is_dark_severe else "#475569"}; margin-top:0.85rem; font-weight:600; word-break:break-word;">'
-    f'PM2.5: <b style="color:{theme_style["text"]};">{current.pm25} µg/m³</b> &bull; PM10: <b style="color:{theme_style["text"]};">{current.pm10} µg/m³</b> &bull; Exposure: <b style="color:{"#f87171" if is_dark_severe else "#dc2626"};">{current.who_pm25_ratio}× WHO limit</b> &bull; {grap_stage}'
-    '</div>'
+    f'{hero_exposure_html}'
     '</div>'
     f'{right_card_html}'
     '</div>'
@@ -750,6 +788,45 @@ cpcb_ticker_html = (
 st.markdown(cpcb_ticker_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
+# DIURNAL LUNG-SAFE ATMOSPHERIC WINDOW TIMELINE
+# ---------------------------------------------------------
+diurnal_timeline_html = (
+    '<div style="background:#0f172a; border:1px solid #1e293b; border-radius:10px; padding:0.85rem 1.1rem; margin-bottom:1.15rem; box-shadow:0 2px 8px rgba(0,0,0,0.06);">'
+    '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:0.65rem;">'
+    f'<div style="font-size:0.82rem; font-weight:800; color:#ffffff; letter-spacing:0.02em;">&#129505; {t["timeline_title"]}</div>'
+    f'<div style="font-size:0.72rem; color:#94a3b8; font-weight:500;">{t["timeline_subtitle"]}</div>'
+    '</div>'
+    '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:0.6rem;">'
+    # Block 1
+    '<div style="background:rgba(239,68,68,0.1); border-left:3px solid #ef4444; border-radius:6px; padding:0.55rem 0.75rem;">'
+    f'<div style="font-size:0.68rem; font-weight:800; color:#f87171; text-transform:uppercase;">{t["t1_time"]}</div>'
+    f'<div style="font-size:0.82rem; font-weight:700; color:#ffffff; margin:2px 0;">{t["t1_title"]}</div>'
+    f'<div style="font-size:0.72rem; color:#cbd5e1; line-height:1.35;">{t["t1_desc"]}</div>'
+    '</div>'
+    # Block 2
+    '<div style="background:rgba(34,197,94,0.1); border-left:3px solid #22c55e; border-radius:6px; padding:0.55rem 0.75rem;">'
+    f'<div style="font-size:0.68rem; font-weight:800; color:#4ade80; text-transform:uppercase;">{t["t2_time"]}</div>'
+    f'<div style="font-size:0.82rem; font-weight:700; color:#ffffff; margin:2px 0;">{t["t2_title"]}</div>'
+    f'<div style="font-size:0.72rem; color:#cbd5e1; line-height:1.35;">{t["t2_desc"]}</div>'
+    '</div>'
+    # Block 3
+    '<div style="background:rgba(234,88,12,0.1); border-left:3px solid #ea580c; border-radius:6px; padding:0.55rem 0.75rem;">'
+    f'<div style="font-size:0.68rem; font-weight:800; color:#fb923c; text-transform:uppercase;">{t["t3_time"]}</div>'
+    f'<div style="font-size:0.82rem; font-weight:700; color:#ffffff; margin:2px 0;">{t["t3_title"]}</div>'
+    f'<div style="font-size:0.72rem; color:#cbd5e1; line-height:1.35;">{t["t3_desc"]}</div>'
+    '</div>'
+    # Block 4
+    '<div style="background:rgba(168,85,247,0.1); border-left:3px solid #a855f7; border-radius:6px; padding:0.55rem 0.75rem;">'
+    f'<div style="font-size:0.68rem; font-weight:800; color:#c084fc; text-transform:uppercase;">{t["t4_time"]}</div>'
+    f'<div style="font-size:0.82rem; font-weight:700; color:#ffffff; margin:2px 0;">{t["t4_title"]}</div>'
+    f'<div style="font-size:0.72rem; color:#cbd5e1; line-height:1.35;">{t["t4_desc"]}</div>'
+    '</div>'
+    '</div>'
+    '</div>'
+)
+st.markdown(diurnal_timeline_html, unsafe_allow_html=True)
+
+# ---------------------------------------------------------
 # 3. COMPACT HOUSEHOLD SETTINGS ROW (Reactive inputs)
 # ---------------------------------------------------------
 col_h1, col_h2, col_h3 = st.columns([1.5, 1.3, 1.2])
@@ -758,7 +835,7 @@ with col_h1:
     vuln_options = ["Children / Infants", "Elderly (>65)", "Asthma / Respiratory"]
     def_vuln = st.session_state.get("household_vuln", ["Children / Infants"])
     vuln_input = st.multiselect(
-        "Household Vulnerabilities",
+        t["household_vuln_label"],
         vuln_options,
         default=def_vuln,
         key="household_vuln"
@@ -776,7 +853,7 @@ with col_h2:
     commute_keys = list(commute_map.keys())
     com_idx = commute_keys.index(def_commute) if def_commute in commute_keys else 1
     commute_input = st.selectbox(
-        "Commute Mode",
+        t["household_commute_label"],
         commute_keys,
         index=com_idx,
         format_func=lambda x: commute_map[x],
@@ -787,7 +864,7 @@ with col_h3:
     def_pur = st.session_state.get("household_purifier", "No")
     pur_idx = 0 if def_pur == "No" else 1
     purifier_input = st.radio(
-        "Purifier Owned?",
+        t["household_purifier_label"],
         ["No (Need DIY IAQ)", "Yes (Have HEPA)"],
         index=pur_idx,
         horizontal=True,
@@ -826,7 +903,7 @@ with p_row1_c1:
     st.markdown(f"""
     <div class="pillar-card">
         <div>
-            <div class="pillar-tag">Pillar 1: What To Do Today</div>
+            <div class="pillar-tag">{t['pillar1_tag']}</div>
             <div class="pillar-headline">{p1_title}</div>
             <ul class="pillar-list">
                 <li>{p1_bullets[0]}</li>
@@ -857,7 +934,7 @@ with p_row1_c2:
     st.markdown(f"""
     <div class="pillar-card">
         <div>
-            <div class="pillar-tag">Pillar 2: Indoor Air Quality Hack</div>
+            <div class="pillar-tag">{t['pillar2_tag']}</div>
             <div class="pillar-headline">{p2_title}</div>
             <ul class="pillar-list">
                 <li>{p2_bullets[0]}</li>
@@ -883,7 +960,7 @@ with p_row2_c1:
     st.markdown(f"""
     <div class="pillar-card">
         <div>
-            <div class="pillar-tag">Pillar 3: Sustainable Alternative</div>
+            <div class="pillar-tag">{t['pillar3_tag']}</div>
             <div class="pillar-headline">{p3_title}</div>
             <ul class="pillar-list">
                 <li>{p3_bullets[0]}</li>
@@ -906,7 +983,7 @@ with p_row2_c2:
     st.markdown(f"""
     <div class="pillar-card">
         <div>
-            <div class="pillar-tag">Pillar 4: Quantified Impact</div>
+            <div class="pillar-tag">{t['pillar4_tag']}</div>
             <div class="pillar-headline">{p4_title}</div>
             <ul class="pillar-list">
                 <li>{p4_bullets[0]}</li>
@@ -928,11 +1005,11 @@ q_col1, q_col2 = st.columns([5, 1])
 with q_col1:
     user_query = st.text_input(
         "Ask a specific question about your routine or home",
-        placeholder="e.g. We have an infant and commute by petrol car. How should we schedule tomorrow?",
+        placeholder=t["ask_placeholder"],
         label_visibility="collapsed"
     )
 with q_col2:
-    ask_clicked = st.button("Ask Assistant", type="primary", use_container_width=True)
+    ask_clicked = st.button(t["ask_button"], type="primary", use_container_width=True)
 
 if ask_clicked and user_query:
     intake_payload = {
@@ -958,10 +1035,10 @@ if ask_clicked and user_query:
 # 6. OPERATIONAL TABS (No emojis)
 # ---------------------------------------------------------
 tab_routine, tab_clean_air, tab_impact, tab_cpcb = st.tabs([
-    "Routine & WFH Notice",
-    "Clean Air at Home (DIY IAQ)",
-    "Impact & Sustainable Alternatives",
-    "National CPCB Telemetry"
+    t["tab_routine"],
+    t["tab_iaq"],
+    t["tab_impact"],
+    t["tab_cpcb"]
 ])
 
 with tab_routine:

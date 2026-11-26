@@ -21,7 +21,23 @@ from src.domain.constants.impact_factors import (
 )
 
 class InversionPhysicsService:
-    """Calculates radiation inversion strength and boundary layer collapse."""
+    """Calculates radiation inversion strength, boundary layer collapse, and physiological exposure equivalents."""
+
+    @staticmethod
+    def calculate_cigarette_equivalence(pm25_ugm3: float) -> dict:
+        """
+        Calculates daily inhaled particulate equivalence using the Berkeley Earth model.
+        Rule: 22 ug/m3 of PM2.5 exposure for 24 hours is approximately equivalent to smoking 1 cigarette.
+        An N95 certified respirator filters >= 95% of airborne particulate matter.
+        """
+        unmasked_cigs = round(pm25_ugm3 / 22.0, 1)
+        n95_cigs = round(unmasked_cigs * 0.05, 1)
+        return {
+            "unmasked_cigarettes_per_day": unmasked_cigs,
+            "n95_protected_cigarettes_per_day": n95_cigs,
+            "reduction_factor_pct": 95.0,
+            "scientific_source": "Berkeley Earth Air Pollution & Cigarette Equivalence Benchmark"
+        }
 
     @staticmethod
     def assess_inversion_risk(night_temp_c: float, wind_kmh: float, humidity_pct: float) -> dict:
