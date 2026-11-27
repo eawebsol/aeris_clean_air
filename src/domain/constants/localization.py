@@ -47,7 +47,12 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "tab_routine": "Routine & WFH Notice",
         "tab_iaq": "Clean Air at Home (DIY IAQ)",
         "tab_impact": "Impact & Sustainable Alternatives",
-        "tab_cpcb": "National CPCB Telemetry"
+        "tab_cpcb": "National CPCB Telemetry",
+        "iaq_mass_title": "Indoor Air Mass-Balance Simulator (Envelope Infiltration vs. Filtration)",
+        "iaq_mass_subtitle": "Single-zone aerosol physics comparing outdoor penetration against DIY and HEPA intervention",
+        "community_slider_title": "Collective Society / Neighborhood Multiplier",
+        "community_slider_label": "Scale by Participating Community / RWA Households",
+        "community_slider_caption": "Simulate what happens when an entire apartment complex or corporate workforce activates remote-work days"
     },
     "HI": {
         "title": "एरिस इंटेलिजेंस (AERIS)",
@@ -89,7 +94,12 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "tab_routine": "दैनिक दिनचर्या एवं WFH पत्र",
         "tab_iaq": "घर पर स्वच्छ वायु (DIY IAQ)",
         "tab_impact": "पर्यावरणीय प्रभाव एवं विकल्प",
-        "tab_cpcb": "राष्ट्रीय CPCB डेटा"
+        "tab_cpcb": "राष्ट्रीय CPCB डेटा",
+        "iaq_mass_title": "घरेलू वायु द्रव्यमान-संतुलन सिम्युलेटर (मास-बैलेंस IAQ)",
+        "iaq_mass_subtitle": "बाहरी प्रदूषण का घर में प्रवेश बनाम DIY और HEPA प्यूरीफायर का प्रभाव",
+        "community_slider_title": "सामूहिक समाज / RWA प्रभाव गुणक (Collective Impact)",
+        "community_slider_label": "सोसायटी या मोहल्ले के भाग लेने वाले घरों की संख्या",
+        "community_slider_caption": "देखें जब पूरी हाउसिंग सोसायटी या कंपनी WFH अपनाती है तो कितना प्रदूषण कम होता है"
     },
     "BN": {
         "title": "এরিস ইন্টেলিজেন্স (AERIS)",
@@ -131,7 +141,12 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "tab_routine": "দৈনিক রুটিন ও WFH চিঠি",
         "tab_iaq": "ঘরে পরিচ্ছন্ন বায়ু (DIY IAQ)",
         "tab_impact": "পরিবেশগত প্রভাব ও বিকল্প",
-        "tab_cpcb": "জাতীয় CPCB তথ্য"
+        "tab_cpcb": "জাতীয় CPCB তথ্য",
+        "iaq_mass_title": "ঘরের বায়ু ভর-ভারসাম্য সিমুলেটর (IAQ Mass-Balance)",
+        "iaq_mass_subtitle": "ঘরের ভেতরে ধোঁয়াশা প্রবেশ বনাম DIY ও HEPA ফিল্টারের প্রভাব",
+        "community_slider_title": "সম্মিলিত সমাজ / আবাসন প্রভাব গুণক",
+        "community_slider_label": "অংশগ্রহণকারী অ্যাপার্টমেন্ট বা পরিবারের সংখ্যা",
+        "community_slider_caption": "একটি সম্পূর্ণ হাউজিং সোসাইটি বা অফিসের দূরবর্তী কাজের সম্মিলিত পরিবেশগত প্রভাব"
     },
     "TE": {
         "title": "ఏరిస్ ఇంటెలిజెన్స్ (AERIS)",
@@ -173,6 +188,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "tab_routine": "దినచర్య & WFH లేఖ",
         "tab_iaq": "ఇంట్లో స్వచ్ఛమైన గాలి (DIY IAQ)",
         "tab_impact": "పర్యావరణ ప్రభావం & పొదుపు",
-        "tab_cpcb": "జాతీయ CPCB సమాచారం"
+        "tab_cpcb": "జాతీయ CPCB సమాచారం",
+        "iaq_mass_title": "గృహ వాయు సమతుల్యతా సిమ్యులేటర్ (IAQ Mass-Balance)",
+        "iaq_mass_subtitle": "ఇంటి లోపలికి కాలుష్య ప్రవేశం vs DIY & HEPA ఫిల్టర్ల సమర్థత",
+        "community_slider_title": "సామూహిక సొసైటీ / కాలనీ ప్రభావ గుణకం",
+        "community_slider_label": "పాల్గొనే కుటుంబాలు / గృహాల సంఖ్య",
+        "community_slider_caption": "మొత్తం అపార్ట్‌మెంట్ లేదా ఉద్యోగులు WFH పాటించినప్పుడు కలిగే సామూహిక ప్రభావం"
     }
 }

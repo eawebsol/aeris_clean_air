@@ -26,8 +26,12 @@ import pandas as pd
 import importlib
 import src.domain.constants.cpcb_stations as cpcb_mod
 import src.adapters.telemetry.hybrid_adapter as telemetry_mod
+import src.domain.constants.localization as loc_mod
+import src.domain.services.physics_service as phys_mod
 importlib.reload(cpcb_mod)
 importlib.reload(telemetry_mod)
+importlib.reload(loc_mod)
+importlib.reload(phys_mod)
 from src.domain.constants.cpcb_stations import CPCB_STATIONS_HIERARCHY, STATION_CALIBRATED_DATA
 from src.domain.constants.localization import TRANSLATIONS
 from src.adapters.llm.adapters import GeminiAdapter, MockLLMAdapter
@@ -1104,6 +1108,26 @@ with tab_clean_air:
         """)
 
     st.divider()
+    st.markdown(f"##### {t['iaq_mass_title']}")
+    st.caption(f"{t['iaq_mass_subtitle']} | Ambient: **{current.pm25} µg/m³**")
+    
+    sim_data = ImpactCalculatorService.simulate_room_mass_balance(current.pm25)
+    cols_sim = st.columns(4)
+    for idx, s in enumerate(sim_data):
+        with cols_sim[idx]:
+            card_border = "#ef4444" if idx == 0 else ("#f97316" if idx == 1 else ("#22c55e" if idx == 2 else "#38bdf8"))
+            st.markdown(f"""
+            <div style="background:#1e293b; border:1px solid {card_border}; border-radius:8px; padding:0.85rem; text-align:center;">
+                <div style="font-size:0.75rem; color:#94a3b8; font-weight:700; height:34px; line-height:1.2;">{s['condition']}</div>
+                <div style="font-size:1.6rem; font-weight:800; color:#ffffff; margin:6px 0;">{s['pm25']} <span style="font-size:0.75rem; font-weight:500; color:#94a3b8;">µg/m³</span></div>
+                <div style="font-size:0.75rem; font-weight:700; color:{'#4ade80' if s['pct_reduction'] > 50 else ('#fb923c' if s['pct_reduction'] > 0 else '#f87171')};">
+                    {f"−{s['pct_reduction']}% Reduction" if s['pct_reduction'] > 0 else "Baseline Smog"}
+                </div>
+                <div style="font-size:0.68rem; color:#cbd5e1; margin-top:4px;">{s['status']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("<div style='height: 0.8rem;'></div>", unsafe_allow_html=True)
     st.markdown("##### Corsi-Rosenthal Box Sizer (Room-Scale CADR)")
     target_area = st.slider("Target room area (square feet)", 100, 800, 300, 25)
     cadr_plan = IAQService.calculate_diy_purifier(target_area)
@@ -1132,6 +1156,38 @@ with tab_impact:
             st.metric("Personal Healthcare Costs Saved", f"₹{wfh_impact['avoided_healthcare_cost_inr']:,.0f}", help="World Bank acute outpatient care benchmark")
             st.metric("Municipal Smog Mitigation Savings", f"₹{wfh_impact['municipal_taxpayer_savings_inr']:,.2f}", help="Avoided anti-smog water misting & sweeping costs")
             st.caption(f"Assumption: {wfh_impact['assumption_notes']}")
+
+    st.divider()
+    st.markdown(f"##### {t['community_slider_title']}")
+    st.caption(t["community_slider_caption"])
+    comm_scale = st.slider(t["community_slider_label"], 1, 500, 50, 5)
+    comm_impact = ImpactCalculatorService.calculate_community_multiplier(wfh_impact, comm_scale)
+    
+    col_c1, col_c2, col_c3, col_c4 = st.columns(4)
+    with col_c1:
+        st.metric(
+            "Community PM2.5 Averted",
+            f"{comm_impact['total_pm25_kg_averted']} kg",
+            help="Direct soot & dust eliminated across entire society/workforce"
+        )
+    with col_c2:
+        st.metric(
+            "Society CO₂ Avoided",
+            f"{comm_impact['total_co2_tons_avoided']} Tons",
+            help="Collective commuter greenhouse emission elimination"
+        )
+    with col_c3:
+        st.metric(
+            "Healthcare Outpatient Saved",
+            f"₹{comm_impact['total_healthcare_savings_lakhs']} Lakhs",
+            help="Avoided acute pediatric & adult respiratory clinic visits"
+        )
+    with col_c4:
+        st.metric(
+            "Municipal Budget Preserved",
+            f"₹{comm_impact['total_municipal_taxpayer_savings_inr']:,.0f}",
+            help="Avoided municipal anti-smog water-sprinkling and mechanical street sweeping expenditure"
+        )
 
 with tab_cpcb:
     st.markdown("##### National Real-Time CPCB CAAQM City Averages")

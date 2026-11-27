@@ -26,14 +26,32 @@ class TestRegression(unittest.TestCase):
     def test_commute_modes_regression(self):
         """Regression: Compare all commute modes and verify ordering and calculation integrity."""
         modes = ImpactCalculatorService.compare_commute_modes(km=15.0)
-        self.assertEqual(len(modes), 5)
+        self.assertEqual(len(modes), 6)
         mode_names = [m.mode for m in modes]
         self.assertIn("Electric Metro / Bus (Dedicated Lane)", mode_names)
         self.assertIn("Private Petrol Car (Rush Hour)", mode_names)
+        self.assertIn("Bicycle (Severe Smog Penalty)", mode_names)
         
         # Verify EV metro has zero tailpipe PM2.5 exhaust
         metro = next(m for m in modes if "Electric Metro" in m.mode)
         self.assertEqual(metro.pm25_exhaust_grams, 0.0)
+
+    def test_room_mass_balance_simulator(self):
+        """Regression: Verify mass-balance indoor simulator physical calculations."""
+        sim = ImpactCalculatorService.simulate_room_mass_balance(outdoor_pm25=300.0)
+        self.assertEqual(len(sim), 4)
+        self.assertEqual(sim[0]["pm25"], 300.0)
+        self.assertLess(sim[1]["pm25"], 300.0)
+        self.assertLess(sim[2]["pm25"], sim[1]["pm25"])
+        self.assertLess(sim[3]["pm25"], sim[2]["pm25"])
+
+    def test_community_multiplier(self):
+        """Regression: Verify RWA/society scale multiplier."""
+        single = ImpactCalculatorService.calculate_wfh_impact(24.0, "petrol_car")
+        multi = ImpactCalculatorService.calculate_community_multiplier(single, 100)
+        self.assertEqual(multi["scale"], 100)
+        self.assertGreater(multi["total_pm25_kg_averted"], 0)
+        self.assertGreater(multi["total_co2_tons_avoided"], 0)
 
     def test_impact_ledger_all_vehicles(self):
         """Regression: Verify impact calculation for all vehicle modes."""
