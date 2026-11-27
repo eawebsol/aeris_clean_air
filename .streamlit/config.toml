@@ -1,12 +1,12 @@
 [theme]
 base = "light"
-primaryColor = "#2F4B6E"
-backgroundColor = "#F4F1EC"
-secondaryBackgroundColor = "#E8E3DA"
-textColor = "#22252A"
-linkColor = "#2F4B6E"
-borderColor = "#D6CFC3"
-baseRadius = "small"
+primaryColor = "#0284c7"
+backgroundColor = "#f8fafc"
+secondaryBackgroundColor = "#f1f5f9"
+textColor = "#0f172a"
+linkColor = "#0284c7"
+borderColor = "#cbd5e1"
+baseRadius = "medium"
 font = "sans serif"
 
 [client]

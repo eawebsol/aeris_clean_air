@@ -6,7 +6,7 @@
 [![CRISP-ML(Q) Gate](https://img.shields.io/badge/CRISP--ML(Q)-Passing%20(100%25)-success)](#)
 [![NIST AI RMF](https://img.shields.io/badge/NIST%20AI%20RMF-Fortified-blue)](#)
 [![Zero-Key Judge Ready](https://img.shields.io/badge/Zero--Key-100%25%20Offline%20Ready-brightgreen)](#)
-[![Repo Footprint](https://img.shields.io/badge/Repo%20Footprint-%3C%200.2%20MB%20(Limit%2010MB)-informational)](#)
+[![Repo Footprint](https://img.shields.io/badge/Repo%20Footprint-2.3%20MB%20(Limit%2010MB)-informational)](#)
 
 ---
 
@@ -34,16 +34,23 @@ python -m unittest tests/security/test_guardrail_injection.py tests/security/tes
 
 ---
 
-## 🏛️ The 4 Required Challenge Pillars
+## 🏛️ The 4 Required Challenge Pillars & Key Feature Innovations
 
 AERIS structures every consultation and advisory strictly into the four pillars required by PromptWars Challenge 6:
 
 | Required Pillar | Domain Service & Architecture | UI Location | Real-World Quantified Output |
 | :--- | :--- | :--- | :--- |
-| **1. What to Do Today** | `InversionPhysicsService` (Boundary layer collapse physics) | **Tab 2: Daily Routine & WFH Notice** | Inversion-shifted schedule; peak morning avoidance (7–10 AM); 1-click Corporate WFH Notice citing CPCB & mixing layer telemetry. |
-| **2. One Indoor Air Quality (IAQ) Hack** | `IAQService` (Room CADR & electrostatic modeling) | **Tab 3: DIY Filtration Hub** | **Project Vayu** (₹140 student fan filter, 90% PM2.5 capture) and **FiltAir** (₹2,500 HEPA box) + **Corsi-Rosenthal Sizer** (₹3,450 vs. ₹16,500 commercial HEPA, saving ₹13,050). |
-| **3. One Sustainable Alternative** | `ImpactCalculatorService` & `EMISSION_FACTORS` | **Tab 4: Sustainable Alternatives & Impact** | Shift to Electric Vehicles & Metro via dedicated corridors; Carbon Craft upcycled soot tiles preventing 38g PM2.5/sqft from brick kilns. |
-| **4. Estimated Direct Impact & Assumptions** | Attributed scientific models (CPCB, CRRI, World Bank) | **Tab 4: Household Impact Ledger** | Averting 24 km petrol commute saves **5.16g PM2.5**, **4.08 kg CO₂**, **₹1,850** in avoided acute respiratory care, and **₹21.67** in municipal water-misting budgets. |
+| **1. What to Do Today** | `InversionPhysicsService` (Boundary layer collapse physics) | **4-Pillar Matrix & Tab 4 (`Routine & WFH Notice`)** | Inversion-shifted schedule; 6-mode commute matrix (with **+380% Bicycle Smog Penalty**); 1-click Corporate WFH Notice citing CPCB & mixing layer telemetry. |
+| **2. One Indoor Air Quality (IAQ) Hack** | `IAQService` & Single-Zone Mass-Balance Model | **4-Pillar Matrix & Tab 1 (`Clean Air at Home`)** | **Project Vayu** (₹140 student fan filter, 90% PM2.5 capture), **FiltAir** (₹2,500 HEPA box), **4-Card Room Mass-Balance Simulator** (−86% to −90% PM2.5), & **Corsi-Rosenthal Sizer**. |
+| **3. One Sustainable Alternative** | `ImpactCalculatorService` & `EMISSION_FACTORS` | **4-Pillar Matrix & Tab 2 (`Impact & Alternatives`)** | Shift to Electric Vehicles & Metro via dedicated corridors; Carbon Craft upcycled soot tiles preventing 38g PM2.5/sqft & sequestering 42.5g PM2.5/sqft. |
+| **4. Estimated Direct Impact & Assumptions** | Attributed scientific models (CPCB, CRRI, World Bank) | **4-Pillar Matrix & Tab 2 (`Collective RWA Multiplier`)** | Averting 24 km petrol commute saves **5.16g PM2.5**, **4.08 kg CO₂**, **₹1,850** healthcare costs, plus interactive **1–500 Household Community Multiplier Slider**. |
+
+### ✨ Bespoke Command-Center UX & Civic Accessibility Highlights
+- **Multilingual Civic Localization (4 Languages):** Native support across **English**, **हिंदी (Hindi)**, **বাংলা (Bengali)**, and **తెలుగు (Telugu)**.
+- **12 Custom Heritage Landmark Silhouettes:** Dynamic regional architectural watermarks (*India Gate & Red Fort, Charminar, Vidhana Soudha, Gateway of India, Taj Mahal, Victoria Memorial, Hawa Mahal, Golden Temple, etc.*) that adapt to the selected CPCB station and AQI tier.
+- **Berkeley Earth Cigarette Equivalence & Pollutant One-Liners:** Real-time passive cigarette equivalence (`~13.0 cig eq/day`, cut to `<0.65` with N95) and instant scientific explanations for all 7 criteria pollutants (`AQI`, `PM2.5`, `PM10`, `CO`, `SO2`, `NO2`, `O3`).
+- **Diurnal Lung-Safe Window Timeline & 7-Day Inversion Sparkline:** Continuous 7-day trajectory (Past 3d $\rightarrow$ Today $\rightarrow$ 72h Forecast) paired with a 4-block diurnal boundary-layer timeline.
+- **Unified Dark-Slate AI Advisory Consult & Floating Scroll-Spy Dock:** Context-aware 2×2 dark-card advisory output fortified by NIST AI RMF guardrails, navigated via a frosted bottom-center floating section dock (`Live AQI` · `Diurnal` · `AI Consult` · `Tools & Data` · `4-Pillar Plan`).
 
 ---
 
@@ -77,4 +84,4 @@ DATAGOV_API_KEY = "your_datagov_key"
 
 - **Dependency Inversion (SOLID):** Domain logic in `src/domain/` has zero direct dependencies on concrete SDKs. All AI and telemetry interactions are abstracted through ports (`AirQualityPort`, `LLMPort`) implemented in `src/adapters/`.
 - **NIST AI Risk Management Framework:** Fortified with deterministic guardrails in `src/guardrails/guardrails.py` that intercept prompt injections and route clinical emergencies (e.g., pediatric wheezing, turning blue) to national emergency helplines (`112 / 102`).
-- **Hack2skill Repository Size Rule:** Entire codebase is **0.18 MB** (well under the strict **10.0 MB** limit).
+- **Hack2skill Repository Size Rule:** Entire repository (including all 12 custom city landmark illustrations, source code, tests, and evaluation suite) is **2.30 MB** (77% below the strict **10.0 MB** limit).

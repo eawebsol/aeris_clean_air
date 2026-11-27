@@ -94,10 +94,28 @@ class HybridAirQualityAdapter(AirQualityPort):
             }
         }
 
-    def get_station_reading(self, station_name: str, city: str = "Delhi-NCR") -> AirQualityReading:
-        """Retrieves station-specific telemetry or live data.gov.in reading for that exact monitor."""
-        # 1. Check live CPCB / data.gov.in
+    def get_station_reading(self, station_name: str, city: str = "Delhi-NCR", force_calibrated: bool = False) -> AirQualityReading:
+        """Retrieves station-specific telemetry from live CPCB / WAQI APIs or calibrated station baseline."""
+        # 0. When triggered via severe winter demo scenario (Delhi Night), use calibrated winter inversion baseline
+        if force_calibrated and station_name in STATION_CALIBRATED_DATA:
+            stn = STATION_CALIBRATED_DATA[station_name]
+            who_ratio = round(stn["pm25"] / 15.0, 1)
+            cat = "Severe" if stn["aqi"] > 400 else ("Very Poor" if stn["aqi"] > 300 else "Poor")
+            self.live_source_used = "Severe Winter Nocturnal Inversion Scenario (CPCB Benchmark)"
+            return AirQualityReading(
+                city=city,
+                aqi=stn["aqi"],
+                pm25=stn["pm25"],
+                pm10=stn["pm10"],
+                who_pm25_ratio=who_ratio,
+                category=f"{cat} (CPCB Station)",
+                timestamp=datetime.now().strftime("%Y-%m-%d %H:%M IST")
+            )
+
+        # 1. Check live CPCB / data.gov.in or WAQI
         live = self._fetch_from_datagov(city)
+        if not live:
+            live = self._fetch_from_waqi(station_name, city)
         if live:
             who_ratio = round(live["pm25"] / 15.0, 1)
             return AirQualityReading(
@@ -163,31 +181,39 @@ class HybridAirQualityAdapter(AirQualityPort):
             pass
         return None
 
-    def _fetch_from_waqi(self, city: str) -> Optional[Dict[str, Any]]:
+    def _fetch_from_waqi(self, query_name: str, fallback_city: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """Queries World Air Quality Index (WAQI) real-time feed (which aggregates CPCB stations)."""
-        if not self.waqi_token:
+        if not self.waqi_token or self.waqi_token == "YOUR_WAQI_TOKEN_HERE":
             return None
-        try:
-            city_query = "delhi" if "Delhi" in city else city.lower()
-            url = f"https://api.waqi.info/feed/{city_query}/?token={self.waqi_token}"
-            resp = requests.get(url, timeout=4)
-            if resp.status_code == 200:
-                res = resp.json()
-                if res.get("status") == "ok":
-                    data = res.get("data", {})
-                    aqi = data.get("aqi", 0)
-                    iaqi = data.get("iaqi", {})
-                    pm25 = iaqi.get("pm25", {}).get("v", aqi * 0.7)
-                    pm10 = iaqi.get("pm10", {}).get("v", aqi * 1.1)
-                    self.live_source_used = "Live WAQI / CPCB Network"
-                    return {
-                        "aqi": int(aqi),
-                        "pm25": float(pm25),
-                        "pm10": float(pm10),
-                        "category": "Live Station Reading"
-                    }
-        except Exception:
-            pass
+        candidates = []
+        if query_name:
+            clean_q = query_name.split(" - ")[0].strip()
+            candidates.append(clean_q)
+        if fallback_city:
+            candidates.append("delhi" if "Delhi" in fallback_city else fallback_city.lower())
+        for cand in candidates:
+            try:
+                url = f"https://api.waqi.info/feed/{cand}/?token={self.waqi_token}"
+                resp = requests.get(url, timeout=2.5)
+                if resp.status_code == 200:
+                    res = resp.json()
+                    if res.get("status") == "ok":
+                        data = res.get("data", {})
+                        aqi_raw = data.get("aqi", 0)
+                        if isinstance(aqi_raw, (int, float)) or (isinstance(aqi_raw, str) and aqi_raw.isdigit()):
+                            aqi = int(aqi_raw)
+                            iaqi = data.get("iaqi", {})
+                            pm25 = iaqi.get("pm25", {}).get("v", round(aqi * 0.65, 1))
+                            pm10 = iaqi.get("pm10", {}).get("v", round(aqi * 1.1, 1))
+                            self.live_source_used = "Live WAQI / CPCB Network"
+                            return {
+                                "aqi": aqi,
+                                "pm25": float(pm25),
+                                "pm10": float(pm10),
+                                "category": "Live Station Reading"
+                            }
+            except Exception:
+                continue
         return None
 
     def get_current_reading(self, city: str) -> AirQualityReading:

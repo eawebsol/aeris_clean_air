@@ -201,12 +201,10 @@ class ImpactCalculatorService:
         """
         # Baseline infiltration without filtration: ~0.65 of outdoor ambient
         unsealed = round(outdoor_pm25 * 0.65, 1)
-        # Foam weatherstripping & draft sealing: cuts infiltration to ~0.42
-        sealed_unfiltered = round(outdoor_pm25 * 0.42, 1)
-        # DIY Box Fan / FiltAir (150-200 CFM): 85-88% reduction from unsealed baseline
-        diy_fan = round(max(15.0, unsealed * 0.14), 1)
-        # Commercial HEPA (Clean room ACH = 5): 90-93% reduction
-        commercial_hepa = round(max(10.0, unsealed * 0.10), 1)
+        # DIY Box Fan / FiltAir (150-200 CFM): ~86% reduction from outdoor ambient
+        diy_fan = round(max(3.5, outdoor_pm25 * 0.14), 1)
+        # Commercial HEPA (Clean room ACH = 5): ~90% reduction from outdoor ambient
+        commercial_hepa = round(max(2.5, outdoor_pm25 * 0.10), 1)
 
         return [
             {"condition": "Outdoor Ambient Smog", "pm25": outdoor_pm25, "pct_reduction": 0, "status": "Hazardous (External)"},

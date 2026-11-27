@@ -41,8 +41,13 @@ class SmogAssistantOrchestrator:
             }
 
         # Step 2: Telemetry injection
-        current_aqi = self.telemetry.get_current_reading(city)
-        nocturnal = self.telemetry.get_nocturnal_forecast(city)
+        station_name = intake_context.get("station") if intake_context else None
+        if station_name and hasattr(self.telemetry, "get_station_reading"):
+            current_aqi = self.telemetry.get_station_reading(station_name=station_name, city=city)
+            nocturnal = self.telemetry.get_nocturnal_forecast(city=city, station_name=station_name)
+        else:
+            current_aqi = self.telemetry.get_current_reading(city)
+            nocturnal = self.telemetry.get_nocturnal_forecast(city)
 
         # Intake defaults if not provided
         intake = intake_context or {
