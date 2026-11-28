@@ -737,16 +737,13 @@ if not gemini_key:
         gemini_key = env_gemini
 
 @st.cache_resource
-def _init_services(g_key, d_key, w_token, _v: int = 2):
-    import importlib
-    import src.adapters.telemetry.hybrid_adapter as _ha_mod
-    importlib.reload(_ha_mod)
+def _init_services(g_key, d_key, w_token):
     llm_inst = GeminiAdapter(api_key=g_key) if g_key else MockLLMAdapter()
-    tel_inst = _ha_mod.HybridAirQualityAdapter(datagov_api_key=d_key, waqi_token=w_token)
+    tel_inst = HybridAirQualityAdapter(datagov_api_key=d_key, waqi_token=w_token)
     orch_inst = SmogAssistantOrchestrator(llm_adapter=llm_inst, telemetry_adapter=tel_inst)
     return llm_inst, tel_inst, orch_inst
 
-llm, telemetry, orchestrator = _init_services(gemini_key, datagov_key, waqi_token, 2)
+llm, telemetry, orchestrator = _init_services(gemini_key, datagov_key, waqi_token)
 
 @st.cache_data(ttl=300, show_spinner=False)
 def _fetch_cached_telemetry(station_name: str, city_name: str, force_severe_demo: bool = False):
@@ -782,8 +779,6 @@ if "trend_view" not in st.session_state:
     st.session_state["trend_view"] = "forecast"
 if "app_lang" not in st.session_state:
     st.session_state["app_lang"] = "EN"
-if "sky_mode" not in st.session_state:
-    st.session_state["sky_mode"] = "Auto"
 
 t = TRANSLATIONS[st.session_state["app_lang"]]
 
@@ -821,11 +816,6 @@ def _activate_delhi_night():
     st.session_state["household_vuln"] = ["Children / Infants", "Asthma / Respiratory"]
     st.session_state["household_commute"] = "petrol_car"
     st.session_state["household_purifier"] = "No (Need DIY IAQ)"
-    st.session_state["sky_mode"] = "Night"
-
-def _toggle_sky_mode():
-    sky_cycle = {"Auto": "Night", "Night": "Day", "Day": "Auto"}
-    st.session_state["sky_mode"] = sky_cycle.get(st.session_state.get("sky_mode", "Auto"), "Auto")
 
 # Conditional Hero Gradient Styling based on AQI category
 GRADIENT_MAP = {
@@ -1933,12 +1923,19 @@ components.html("""
         });
     }
 
+    let lockId = null;
+    let lockTimer = null;
+
     function updateActive() {
+        // While a dock click is scrolling to its target, keep that section selected
+        if (lockId) { setActive(lockId); return; }
+
         const scroller = (mainSec && mainSec.scrollHeight > mainSec.clientHeight) ? mainSec : pDoc.documentElement;
         const atBottom = (scroller.scrollTop + scroller.clientHeight) >= (scroller.scrollHeight - 40);
         if (atBottom) { setActive("sec-pillars"); return; }
 
-        const focalY = pWin.innerHeight * 0.35;
+        // Narrow focal band near the top so short sections (AI Consult) are not overtaken by the next anchor
+        const focalY = 120;
         let current = ids[0];
         for (const id of ids) {
             const el = pDoc.getElementById(id);
@@ -1951,6 +1948,11 @@ components.html("""
 
     let ticking = false;
     function onScroll() {
+        if (lockId) {
+            // Release the lock once scrolling has settled
+            if (lockTimer) pWin.clearTimeout(lockTimer);
+            lockTimer = pWin.setTimeout(() => { lockId = null; lockTimer = null; }, 450);
+        }
         if (!ticking) {
             ticking = true;
             pWin.requestAnimationFrame(() => { updateActive(); ticking = false; });
@@ -1963,8 +1965,12 @@ components.html("""
         e.preventDefault();
         const target = pDoc.getElementById(link.dataset.sec);
         if (target) {
+            lockId = link.dataset.sec;
+            setActive(lockId);
+            if (lockTimer) pWin.clearTimeout(lockTimer);
+            // Safety release in case the page is already at the target (no scroll event fires)
+            lockTimer = pWin.setTimeout(() => { lockId = null; lockTimer = null; }, 1200);
             target.scrollIntoView({ behavior: "smooth", block: "start" });
-            setActive(link.dataset.sec);
         }
     }
 
