@@ -367,15 +367,32 @@ STATION_CALIBRATED_DATA: Dict[str, Dict[str, Any]] = {
 
     # Maharashtra
     "Bandra, Mumbai - MPCB": {"aqi": 185, "pm25": 78.0, "pm10": 135.0, "temp": 22.0, "wind": 8.5, "humidity": 68},
+    "Colaba, Mumbai - MPCB": {"aqi": 145, "pm25": 58.0, "pm10": 110.0, "temp": 23.0, "wind": 9.0, "humidity": 72},
+    "Kurla, Mumbai - MPCB": {"aqi": 215, "pm25": 98.0, "pm10": 175.0, "temp": 21.8, "wind": 7.5, "humidity": 66},
+    "Worli, Mumbai - MPCB": {"aqi": 160, "pm25": 66.0, "pm10": 125.0, "temp": 22.5, "wind": 8.8, "humidity": 70},
     "Shivajinagar, Pune - MPCB": {"aqi": 132, "pm25": 56.0, "pm10": 128.0, "temp": 18.0, "wind": 6.2, "humidity": 58},
 
-    # South India
+    # South India - Bengaluru
     "BTM Layout, Bengaluru - KSPCB": {"aqi": 62, "pm25": 24.0, "pm10": 58.0, "temp": 19.5, "wind": 9.2, "humidity": 65},
+    "City Railway Station, Bengaluru - KSPCB": {"aqi": 88, "pm25": 36.0, "pm10": 84.0, "temp": 20.0, "wind": 8.0, "humidity": 63},
+    "Hebbal, Bengaluru - KSPCB": {"aqi": 75, "pm25": 29.0, "pm10": 72.0, "temp": 19.8, "wind": 8.5, "humidity": 64},
+
+    # South India - Chennai
     "Alandur, Chennai - CPCB": {"aqi": 62, "pm25": 25.0, "pm10": 60.0, "temp": 24.0, "wind": 11.0, "humidity": 78},
+    "Manali, Chennai - TNPCB": {"aqi": 112, "pm25": 46.0, "pm10": 108.0, "temp": 24.8, "wind": 9.5, "humidity": 80},
+    "Velachery, Chennai - TNPCB": {"aqi": 70, "pm25": 28.0, "pm10": 68.0, "temp": 24.2, "wind": 10.2, "humidity": 77},
+
+    # South India - Hyderabad (Distinct hyper-local microclimates)
+    "Bollaram Industrial Area, Hyderabad - TSPCB": {"aqi": 142, "pm25": 62.0, "pm10": 138.0, "temp": 20.5, "wind": 6.8, "humidity": 64},
     "Central University, Hyderabad - TSPCB": {"aqi": 55, "pm25": 21.0, "pm10": 52.0, "temp": 21.0, "wind": 7.5, "humidity": 60},
+    "Sanathnagar, Hyderabad - TSPCB": {"aqi": 118, "pm25": 49.0, "pm10": 115.0, "temp": 21.5, "wind": 6.5, "humidity": 62},
+    "Zoo Park, Hyderabad - TSPCB": {"aqi": 82, "pm25": 32.0, "pm10": 78.0, "temp": 21.8, "wind": 7.0, "humidity": 65},
+    "ICRISAT Patancheru, Hyderabad - TSPCB": {"aqi": 105, "pm25": 44.0, "pm10": 102.0, "temp": 20.8, "wind": 7.2, "humidity": 61},
 
     # East & North
     "Victoria Memorial, Kolkata - WBPCB": {"aqi": 161, "pm25": 75.0, "pm10": 155.0, "temp": 16.5, "wind": 4.5, "humidity": 74},
+    "Rabindra Bharati University, Kolkata - WBPCB": {"aqi": 312, "pm25": 165.0, "pm10": 270.0, "temp": 15.5, "wind": 3.8, "humidity": 76},
+    "Ballygunge, Kolkata - WBPCB": {"aqi": 220, "pm25": 105.0, "pm10": 195.0, "temp": 16.0, "wind": 4.2, "humidity": 75},
     "Adarsh Nagar, Jaipur - RSPCB": {"aqi": 182, "pm25": 84.0, "pm10": 178.0, "temp": 13.0, "wind": 5.0, "humidity": 55},
     "Chandkheda, Ahmedabad - GPCB": {"aqi": 119, "pm25": 51.0, "pm10": 115.0, "temp": 17.0, "wind": 6.5, "humidity": 52},
     "Sector-22, Chandigarh - CPCC": {"aqi": 119, "pm25": 52.0, "pm10": 118.0, "temp": 11.5, "wind": 4.2, "humidity": 65},
