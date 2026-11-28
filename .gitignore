@@ -25,6 +25,8 @@ Thumbs.db
 *.log
 tmp/
 *.tmp
+*.docx
+*.doc
 
 # Streamlit secrets (Do not commit to public GitHub!)
 .streamlit/secrets.toml
