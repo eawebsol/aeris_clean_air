@@ -12,25 +12,16 @@ This rule defines the directory boundaries, component responsibilities, and adap
 ```
 src/
 ├── domain/                      # PURE Domain layer (No external SDK imports!)
-│   ├── models/                  # Domain entities, Pydantic data schemas
-│   ├── ports/                   # Abstract base classes / Protocols (Interfaces)
-│   │   ├── llm_port.py          # Abstract LLM provider interface
-│   │   ├── air_quality_port.py  # Abstract telemetry / AQI provider interface
-│   │   └── memory_port.py       # Abstract session / conversation store
-│   ├── services/                # Pure business logic
-│   │   ├── inversion_service.py # Nocturnal temperature drop & smog physics
-│   │   ├── routine_service.py   # Daily planner & exposure optimization
-│   │   ├── iaq_service.py       # DIY Corsi-Rosenthal & Clean Room calculations
-│   │   └── impact_service.py    # PM2.5, CO2, and health cost savings calculator
-│   └── prompts/                 # Versioned prompt templates
+│   ├── constants/               # Scientific factors, CPCB stations, landmarks, i18n
+│   ├── models/                  # Domain entities & Pydantic schemas (schemas.py)
+│   ├── ports/                   # Abstract base classes / Protocols (interfaces.py)
+│   └── services/                # Pure physics & business logic (physics_service.py)
 ├── adapters/                    # Concrete implementations of domain ports
-│   ├── llm/                     # Google Gemini adapter, mock adapter for CI/evals
-│   ├── telemetry/               # Hybrid OpenAQ/WAQI API client + local fixture fallback
-│   └── memory/                  # In-memory / local session state
-├── orchestration/               # Multi-step workflows, tool dispatchers, agent graphs
-├── guardrails/                  # Input validation, output schema enforcement, PII filter
-├── ui/                          # User interface (Bespoke Streamlit dashboard with polished CSS)
-└── evals/                       # Evaluation harness, golden test suites, benchmark scripts
+│   ├── llm/                     # Gemini multi-model cascade & mock adapter (adapters.py)
+│   └── telemetry/               # 3-tier hybrid CPCB / WAQI / fixture adapter (hybrid_adapter.py)
+├── orchestration/               # Master orchestrator connecting services & guardrails
+├── guardrails/                  # NIST AI RMF input/output guardrails (guardrails.py)
+└── ui/                          # Bespoke Streamlit dashboard & regional landmark silhouettes
 ```
 
 ## 2. SOLID Architectural Invariants

@@ -52,12 +52,12 @@ This document operationalizes the four core functions of the **NIST AI RMF 1.0**
 ## 4. Manage (Runtime Defenses & UX Fallbacks)
 
 ### 4.1 Layered Defense Architecture
-1. **Layer 1: Input Guardrail (`guardrails/input_guardrail.py`):**
+1. **Layer 1: Input Guardrail (`src/guardrails/guardrails.py` - `InputGuardrail`):**
    - Strips malicious control characters and detects adversarial intent.
    - Routes medical emergency keywords directly to emergency response templates.
-2. **Layer 2: Domain Logic & Deterministic Physics (`domain/services/`):**
+2. **Layer 2: Domain Logic & Deterministic Physics (`src/domain/services/physics_service.py`):**
    - Calculations for CADR, nocturnal inversion probability, and carbon/PM2.5 metrics are computed in pure Python, not by the LLM.
-3. **Layer 3: Output Guardrail (`guardrails/output_guardrail.py`):**
+3. **Layer 3: Output Guardrail (`src/guardrails/guardrails.py` - `OutputGuardrail`):**
    - Validates completions against Pydantic schema contracts.
    - Enforces scientific citations (WHO, Harvard COGfx, EPA, CAQM).
    - If output fails schema validation, falls back to a deterministic structured emergency card.

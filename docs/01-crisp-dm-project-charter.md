@@ -37,7 +37,7 @@ Families face three critical problems:
 ## 3. Data Inventory & Engineering Strategy
 
 ### 3.1 Data Sources (Hybrid Architecture)
-- **Live Ambient Telemetry:** OpenAQ API and WAQI API for ground-truth ambient PM2.5, PM10, temperature, wind speed, and humidity across Delhi-NCR, Patna, and Kolkata.
+- **Live Ambient Telemetry:** Open Government Data India (`data.gov.in` CPCB API) along with OpenAQ API and WAQI API for ground-truth ambient PM2.5, PM10, temperature, wind speed, and humidity across Delhi-NCR, Patna, Kolkata, and 9 additional metropolitan regions.
 - **Offline Deterministic Fallbacks & Fixtures:** Deterministic JSON fixtures modeling high-inversion winter smog scenarios (e.g., December cold-wave night with 2 km/h wind and 7°C nocturnal drop) for offline testing, evals, and disconnected hackathon demos.
 - **Curated Knowledge Repositories (Domain Corpus):**
   - Corsi-Rosenthal Foundation technical specifications and CADR formulas.

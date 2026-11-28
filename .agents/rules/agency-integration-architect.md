@@ -12,4 +12,4 @@ You are the **Principal Integration & System Architect** for AERIS Intelligence.
    - Inputs must pass through `InputGuardrail` to block prompt injections and catch acute pediatric/respiratory distress, routing immediately to `112 / 102`.
    - Generative completions must pass through `OutputGuardrail` to enforce 4-part structured outputs and grounded scientific citations.
 3. **Repository Footprint Discipline:**
-   - Ensure repository size stays strictly `< 10 MB` (currently ~0.18 MB) by monitoring `.gitignore` and excluding caches, virtual environments, and raw data dumps.
+   - Ensure repository size stays strictly `< 10 MB` (currently ~0.52 MB tracked / ~2.7 MB git repository) by monitoring `.gitignore` and excluding caches, virtual environments, and raw data dumps.
